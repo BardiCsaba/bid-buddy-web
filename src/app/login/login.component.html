@@ -1,0 +1,14 @@
+<div class="login-container">
+    <h2>Login</h2>
+
+    <!-- Google Login -->
+    <button (click)="loginWithGoogle()">Login with Google</button>
+
+    <!-- Email/Password Login -->
+    <div class="email-login">
+        <input [(ngModel)]="email" type="email" placeholder="Email">
+        <input [(ngModel)]="password" type="password" placeholder="Password">        
+        <button (click)="loginWithEmail()">Login with Email</button>
+        <button (click)="registerWithEmail()">Register</button>
+    </div>
+</div>
