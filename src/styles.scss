@@ -1,3 +1,8 @@
+/* Global box-sizing reset to ensure consistent sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* You can add global styles to this file, and also import other style files */
 .main-container {
     margin-left: 250px;
@@ -5,41 +10,16 @@
     background-color: #f6f6f6;
     font-family: 'Arial', sans-serif;
 
-    .filters-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-
-        button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 16px;
-            background-color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-
-            &.active {
-                background-color: #FF4747;
-                color: white;
-            }
-
-            &:hover {
-                background-color: darken(#FF4747, 10%);
-            }
-        }
-    }
-
     input {
-        width: 100%;
+        width: 30%;
         padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 8px;
-        margin-bottom: 20px;
     }
 
     .auctions-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 20px;
 
         .auction-item {
@@ -51,7 +31,7 @@
             img {
                 width: 100%;
                 object-fit: cover;
-                height: 140px;
+                height: 160px;
             }
 
             .auction-info {

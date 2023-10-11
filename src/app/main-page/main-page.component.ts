@@ -42,7 +42,7 @@ export class MainPageComponent {
         {
             name: 'Vintage Book Collection',
             price: 90.0,
-            endDate: new Date('2023-10-11T15:30:00'),
+            endDate: new Date('2023-10-11T17:30:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {

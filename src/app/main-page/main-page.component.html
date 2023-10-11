@@ -1,11 +1,11 @@
 <div class="filters-row">
-    <button *ngFor="let filter of filters" [ngClass]="{ 'active': filter === selectedFilter }"
-        (click)="selectFilter(filter)">
-        {{ filter }}
-    </button>
+    <input [(ngModel)]="searchText" placeholder="Search" (keyup)="searchAuctions()" class="search-input">
+    <div class="filter-buttons">
+        <button *ngFor="let filter of filters" [ngClass]="{ 'active': filter === selectedFilter }" (click)="selectFilter(filter)">
+            {{ filter }}
+        </button>
+    </div>
 </div>
-
-<input [(ngModel)]="searchText" placeholder="Search" (keyup)="searchAuctions()">
 
 <div class="auctions-list">
     <div *ngFor="let auction of auctions" class="auction-item">
