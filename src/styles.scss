@@ -1,1 +1,106 @@
 /* You can add global styles to this file, and also import other style files */
+.main-container {
+    margin-left: 250px;
+    padding: 20px;
+    background-color: #f6f6f6;
+    font-family: 'Arial', sans-serif;
+
+    .filters-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 16px;
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+
+            &.active {
+                background-color: #FF4747;
+                color: white;
+            }
+
+            &:hover {
+                background-color: darken(#FF4747, 10%);
+            }
+        }
+    }
+
+    input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .auctions-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+
+        .auction-item {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+
+            img {
+                width: 100%;
+                object-fit: cover;
+                height: 140px;
+            }
+
+            .auction-info {
+                padding: 12px;
+                display: flex;  // Set to row, which is default
+                justify-content: space-between;
+                align-items: center;
+    
+                .info-text {
+                    h3 {
+                        margin: 0;
+                        margin-bottom: 8px;
+                        font-size: 1.2em;
+                    }
+        
+                    span {
+                        font-size: 0.8em;
+                        color: #888;
+                        margin-bottom: 8px;
+                    }
+                }
+    
+                .info-price-bid {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+    
+                    strong {
+                        font-size: 1.5em;
+                        color: #333;
+                        margin-bottom: 8px;
+                    }
+    
+                    .bid-button {
+                        padding: 8px 16px;
+                        background-color: #FF4747;
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: background-color 0.3s;
+                        white-space: nowrap;
+    
+                        &:hover {
+                            background-color: darken(#FF4747, 10%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

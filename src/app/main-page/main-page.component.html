@@ -1,0 +1,24 @@
+<div class="filters-row">
+    <button *ngFor="let filter of filters" [ngClass]="{ 'active': filter === selectedFilter }"
+        (click)="selectFilter(filter)">
+        {{ filter }}
+    </button>
+</div>
+
+<input [(ngModel)]="searchText" placeholder="Search" (keyup)="searchAuctions()">
+
+<div class="auctions-list">
+    <div *ngFor="let auction of auctions" class="auction-item">
+        <img [src]="auction.imageSrc" alt="{{ auction.name }}">
+        <div class="auction-info">
+            <div class="info-text">
+                <h3>{{ auction.name }}</h3>
+                <span *ngIf="(timeLeft(auction.endDate) | async) as time">{{ time }}</span>
+            </div>
+            <div class="info-price-bid">
+                <strong>$ {{ auction.price }}</strong>
+                <button class="bid-button">Bid now</button>
+            </div>
+        </div>            
+    </div>
+</div>

@@ -1,2 +1,15 @@
-<app-login></app-login>
+<!-- Sidebar Navigation -->
+<aside class="sidenav">
+    <img src="assets/images/bidbuddy.png" alt="Logo" class="logo">
+    <ul class="menu">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
+        <li><a routerLink="/mybids" routerLinkActive="active">My Bids</a></li>
+        <li><a routerLink="/newbid" routerLinkActive="active">New Bid</a></li>
+        <li><a routerLink="/profile" routerLinkActive="active">Profile</a></li>
+    </ul>
+</aside>
 
+<!-- Main Content Area -->
+<div class="main-container">
+    <router-outlet></router-outlet>
+</div>

@@ -1,0 +1,42 @@
+.sidenav {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #444; // Slightly lighter than the original
+    overflow-y: auto;
+    font-family: 'Arial', sans-serif; // Consistency in fonts
+
+    .logo {
+        display: block;
+        margin: 2px auto;
+        height: 150px;
+    }
+
+    .menu {
+        list-style-type: none;
+        margin: 20px 0; // Added vertical spacing
+        padding: 0;
+
+        li {
+            margin: 8px 0; // Vertical spacing between items
+
+            a {
+                display: block;
+                text-decoration: none;
+                color: #f6f6f6;
+                padding: 12px 24px; // Increased padding
+                border-radius: 8px; // Rounded corners
+                transition: background-color 0.3s, box-shadow 0.3s; // Smooth transition
+
+                &:hover,
+                &.active {
+                    background-color: #FF4747; // Main accent color for highlight
+                    color: white; // Consistent text color
+                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); // Subtle shadow for a raised effect
+                }
+            }
+        }
+    }
+}
