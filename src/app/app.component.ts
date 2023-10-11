@@ -7,4 +7,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
     title = 'bid-buddy-web';
+    public menuOpen = false;
+
+    toggleMenu() {
+        this.menuOpen = !this.menuOpen;
+    }
+
 }
