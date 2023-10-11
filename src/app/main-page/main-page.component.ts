@@ -6,6 +6,7 @@ import { map, takeWhile } from 'rxjs/operators';
 interface Auction {
     name: string;
     price: number;
+    type: string;
     endDate: Date;
     imageSrc: string;
 }
@@ -17,41 +18,58 @@ interface Auction {
 })
 export class MainPageComponent {
     selectedFilter = 'All';
-    filters: string[] = ['All', 'Electronics', 'Clothing', 'Books', 'Home Decor'];
+    filters: string[] = ['All', 'Electronics', 'Clothing', 'Books', 'Home Decor', "Sports", "Toys", "Other"];
     searchText: string = '';
+    filteredAuctions: any[] = [];
 
     auctions: Auction[] = [
         {
             name: 'Table Tennis Set',
             price: 120.0,
+            type: 'Sports',
             endDate: new Date('2023-12-24T14:00:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {
             name: 'Gaming Laptop',
             price: 1400.0,
+            type: 'Electronics',
             endDate: new Date('2023-11-14T12:30:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {
             name: 'Designer Shoes',
             price: 220.0,
+            type: 'Clothing',
             endDate: new Date('2023-10-30T17:00:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {
             name: 'Vintage Book Collection',
             price: 90.0,
-            endDate: new Date('2023-10-11T17:30:00'),
+            type: 'Books',
+            endDate: new Date('2023-10-11T19:15:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {
             name: 'Modern Sofa Set',
             price: 720.0,
+            type: 'Home Decor',
             endDate: new Date('2023-10-11T20:45:00'),
+            imageSrc: 'assets/images/test.jpg'
+        },
+        {
+            name: 'Barbie Doll',
+            price: 20.0,
+            type: 'Toys',
+            endDate: new Date('2023-10-14T16:45:00'),
             imageSrc: 'assets/images/test.jpg'
         }
     ];
+
+    ngOnInit() {
+        this.filteredAuctions = this.auctions;  // initially show all auctions
+    }
 
     timeLeft(auctionEndDate: Date): Observable<string> {
         return new Observable<string>(observer => {
@@ -92,13 +110,31 @@ export class MainPageComponent {
             takeWhile(val => !val.includes('Ended'))
         );
     }    
-    
 
     selectFilter(filter: string): void {
         this.selectedFilter = filter;
+        this.updateFilteredAuctions();
     }
-
+    
     searchAuctions(): void {
-        // Implement search logic here
+        this.updateFilteredAuctions();
+    }
+    
+    private updateFilteredAuctions(): void {
+        // Initial set to all auctions
+        let currentFiltered = this.auctions;
+    
+        // If there's a filter other than 'All' applied, filter the auctions based on type
+        if (this.selectedFilter && this.selectedFilter !== 'All') {
+            currentFiltered = currentFiltered.filter(auction => auction.type === this.selectedFilter);
+        }
+    
+        // If there's search text, further filter the already filtered auctions
+        if (this.searchText) {
+            const searchLower = this.searchText.toLowerCase();
+            currentFiltered = currentFiltered.filter(auction => auction.name.toLowerCase().includes(searchLower));
+        }
+    
+        this.filteredAuctions = currentFiltered;
     }
 }

@@ -9,13 +9,13 @@
     padding: 20px;
     background-color: #f6f6f6;
     font-family: 'Arial', sans-serif;
-    transition: margin-left 0.3s; // Add transition for smooth effect
+    transition: margin-left 0.3s;
 
     @media (max-width: 768px) {
-        margin-left: 0;  // reset margin on mobile
+        margin-left: 0;
 
         &.with-sidenav {
-            margin-left: 250px;  // assuming 250px is the width of your sidenav
+            margin-left: 250px;
         }
     }
 

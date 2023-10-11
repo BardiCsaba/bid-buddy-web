@@ -1,5 +1,5 @@
 <div class="filters-row">
-    <input [(ngModel)]="searchText" placeholder="Search" (keyup)="searchAuctions()" class="search-input">
+    <input class="search-input" [(ngModel)]="searchText" placeholder="Search" (keyup)="searchAuctions()">
     <div class="filter-buttons">
         <button *ngFor="let filter of filters" [ngClass]="{ 'active': filter === selectedFilter }" (click)="selectFilter(filter)">
             {{ filter }}
@@ -8,7 +8,7 @@
 </div>
 
 <div class="auctions-list">
-    <div *ngFor="let auction of auctions" class="auction-item">
+    <div *ngFor="let auction of filteredAuctions" class="auction-item">
         <img [src]="auction.imageSrc" alt="{{ auction.name }}">
         <div class="auction-info">
             <div class="info-text">

@@ -4,7 +4,7 @@
         <div class="auction-info">
             <div class="info-text">
                 <h3>{{ auction.name }}</h3>
-                <span>{{ auction.endDate }}</span>
+                <span>{{ auction.endDate | date:'shortDate' }}</span>
             </div>
             <div class="info-price-bid">
                 <strong>$ {{ auction.price }}</strong>

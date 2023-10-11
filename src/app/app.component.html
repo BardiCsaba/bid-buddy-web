@@ -9,9 +9,13 @@
     </ul>
 </aside>
 
-<button class="menu-toggle" (click)="toggleMenu()">
-    ☰  <!-- You can replace with any icon or text -->
-</button>
+<!-- Header -->
+<div class="menu-header">
+    <button class="menu-toggle" (click)="toggleMenu()">
+        ☰  <!-- You can replace with any icon or text -->
+    </button>
+    <img src="assets/images/bidbuddy-text.png" alt="Logo" class="logo-text">
+</div>
 
 <!-- Main Content Area -->
 <div class="main-container" [class.with-sidenav]="menuOpen">

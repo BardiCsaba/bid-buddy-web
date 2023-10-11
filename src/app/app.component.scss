@@ -1,5 +1,24 @@
-.menu-toggle {
+.menu-header {
     display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    width: 100%;
+
+    @media (max-width: 768px) {
+        display: flex;
+    }
+}
+
+.menu-toggle {
+    // Remove redundant styles. Keep only those that are needed
+    @media (max-width: 768px) {
+        display: block;
+    }
+}
+
+.logo-text {
+    height: 50px; // Logo height
 
     @media (max-width: 768px) {
         display: block;
