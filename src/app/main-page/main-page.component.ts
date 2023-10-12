@@ -48,14 +48,14 @@ export class MainPageComponent {
             name: 'Vintage Book Collection',
             price: 90.0,
             type: 'Books',
-            endDate: new Date('2023-10-11T19:15:00'),
+            endDate: new Date('2023-10-15T19:15:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {
             name: 'Modern Sofa Set',
             price: 720.0,
             type: 'Home Decor',
-            endDate: new Date('2023-10-11T20:45:00'),
+            endDate: new Date('2023-10-15T20:45:00'),
             imageSrc: 'assets/images/test.jpg'
         },
         {

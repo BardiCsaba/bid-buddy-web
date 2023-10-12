@@ -1,23 +1,32 @@
-<div class="profile-container">
+<div class="profile-card">
     <h2>User Profile</h2>
 
     <!-- Profile Picture -->
-    <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
+    <div class="profile-pic-container">
+        <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
+    </div>
     
     <!-- User Details -->
     <div class="user-details">
-        <label>Name:</label>
-        <p>{{ username }}</p>
+        <div class="detail">
+            <label>Name:</label>
+            <p>{{ username }}</p>
+        </div>
 
-        <label>Email:</label>
-        <p>{{ email }}</p>
+        <div class="detail">
+            <label>Email:</label>
+            <p>{{ email }}</p>
+        </div>
 
-        <!-- Generally, you shouldn't show passwords directly in the profile for security reasons. Instead, you can have a "Change Password" feature. -->
-        <!-- If you still want to show it, uncomment the lines below.
-        <label>Password:</label>
-        <p>{{ password }}</p>
-        -->
+        <div class="detail">
+            <label>Balance:</label>
+            <p>{{ balance }}</p>
+        </div>
 
-        <button (click)="logout()">Logout</button>
+        <div class="action-buttons">
+            <button (click)="logout()">Logout</button>
+            <button (click)="changePassword()">Change Password</button>
+            <button (click)="addFunds()">Add Funds</button>
+        </div>
     </div>
 </div>
