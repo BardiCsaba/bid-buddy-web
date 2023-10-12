@@ -1,4 +1,5 @@
 <div class="filters-row">
+    <img src="assets/images/bidbuddy-text.png" alt="Logo" class="logo-text">
     <input class="search-input" [(ngModel)]="searchText" placeholder="Search" (keyup)="searchAuctions()">
     <div class="filter-buttons">
         <button *ngFor="let filter of filters" [ngClass]="{ 'active': filter === selectedFilter }" (click)="selectFilter(filter)">

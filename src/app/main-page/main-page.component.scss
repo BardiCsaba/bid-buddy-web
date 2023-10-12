@@ -1,31 +1,40 @@
 .filters-row {
     display: flex;
-    flex-wrap: wrap; // allows elements to wrap on smaller screens
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column; /* stack children vertically */
+    align-items: flex-start; /* align children to the start/left */
     margin-bottom: 20px;
 
+    .logo-text {
+        order: 1; /* Ensures the logo-text is on top */
+        align-self: flex-start; /* Align to the start/left */
+        height: 60px;
+        margin-bottom: 15px;
+    }
+
     .search-input {
-        width: 100%;
+        order: 2; /* Ensures the search bar is under the logo-text */
+        width: 100%; /* takes full width on mobile */
         padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 8px;
-        margin-bottom: 15px;  // Added space below search on mobile
-
-        @media (min-width: 769px) { // non-mobile
-            width: 500px;
+        margin-bottom: 15px;
+    
+        @media (min-width: 769px) {
+            width: 500px; /* fixed width on desktop */
+            margin-bottom: 15px; /* ensures the margin-bottom is preserved on larger screens */
         }
-    }
+    }    
 
     .filter-buttons {
-        width: 100%; // full width on mobile
+        order: 3; /* Ensures the filter buttons are under the search bar */
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        width: 100%; /* takes full width on mobile */
 
         button {
-            flex: 1; // distribute space among buttons on mobile
-            padding: 6px 8px; // slightly reduce padding for mobile
+            flex: 1; /* distribute space among buttons on mobile */
+            padding: 6px 8px;
             border: none;
             border-radius: 16px;
             background-color: white;
@@ -41,9 +50,9 @@
                 background-color: darken(#FF4747, 10%);
             }
 
-            @media (min-width: 769px) { // non-mobile
-                flex: initial; // reset flex
-                padding: 8px 12px; // reset padding
+            @media (min-width: 769px) {
+                flex: initial; /* reset flex on desktop */
+                padding: 8px 12px;
             }
         }
     }

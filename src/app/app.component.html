@@ -1,11 +1,13 @@
 <!-- Sidebar Navigation -->
 <aside class="sidenav" [class.open]="menuOpen">
-    <img src="assets/images/bidbuddy.png" alt="Logo" class="logo">
+    <div class="profile-section" (click)="goToProfile()">
+        <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
+        <span class="username">{{ username }}</span>
+    </div>
     <ul class="menu">
         <li><a routerLink="/" routerLinkActive="active" (click)="menuOpen = false" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
         <li><a routerLink="/mybids" (click)="menuOpen = false" routerLinkActive="active">My Bids</a></li>
         <li><a routerLink="/newbid" (click)="menuOpen = false" routerLinkActive="active">New Bid</a></li>
-        <li><a routerLink="/profile" (click)="menuOpen = false" routerLinkActive="active">Profile</a></li>
     </ul>
 </aside>
 
@@ -14,7 +16,6 @@
     <button class="menu-toggle" (click)="toggleMenu()">
         ☰  <!-- You can replace with any icon or text -->
     </button>
-    <img src="assets/images/bidbuddy-text.png" alt="Logo" class="logo-text">
 </div>
 
 <!-- Main Content Area -->

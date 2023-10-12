@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-root',
@@ -8,6 +9,14 @@ import { Component } from '@angular/core';
 export class AppComponent {
     title = 'bid-buddy-web';
     public menuOpen = false;
+    profilePicUrl = '/assets/images/test.jpg';
+    username = 'User Name';
+    
+    constructor(private router: Router) {}
+
+    goToProfile(): void {
+        this.router.navigate(['/profile']);
+    }
 
     toggleMenu() {
         this.menuOpen = !this.menuOpen;
