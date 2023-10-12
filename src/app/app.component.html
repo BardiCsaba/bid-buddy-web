@@ -2,7 +2,7 @@
 <aside class="sidenav" [class.open]="menuOpen">
     <div class="profile-section" (click)="goToProfile()">
         <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
-        <span class="username">{{ username }}</span>
+        <span class="username">{{ username ? username : 'Log in / Register' }}</span>
     </div>
     <ul class="menu">
         <li><a routerLink="/" routerLinkActive="active" (click)="menuOpen = false" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>

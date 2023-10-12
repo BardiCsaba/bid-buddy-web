@@ -1,1 +1,23 @@
-<p>profile works!</p>
+<div class="profile-container">
+    <h2>User Profile</h2>
+
+    <!-- Profile Picture -->
+    <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
+    
+    <!-- User Details -->
+    <div class="user-details">
+        <label>Name:</label>
+        <p>{{ username }}</p>
+
+        <label>Email:</label>
+        <p>{{ email }}</p>
+
+        <!-- Generally, you shouldn't show passwords directly in the profile for security reasons. Instead, you can have a "Change Password" feature. -->
+        <!-- If you still want to show it, uncomment the lines below.
+        <label>Password:</label>
+        <p>{{ password }}</p>
+        -->
+
+        <button (click)="logout()">Logout</button>
+    </div>
+</div>

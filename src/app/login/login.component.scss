@@ -1,39 +1,91 @@
 .login-container {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     height: 100vh;
     background-color: #f5f5f5;
+    font-family: 'Arial', sans-serif;
 
-    h2 {
-        margin-bottom: 20px;
+    .error-card {
+        order: 1;
+        background-color: #f8d7da;  // Light red background
+        color: #721c24;  // Dark red text color
+        border: 1px solid #f5c6cb;  // Border color
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  // Subtle shadow for a raised effect
+        text-align: center;
+        max-width: 400px;
+        width: 100%;
     }
-
-    button {
-        padding: 10px 15px;
-        margin-top: 10px;
-        border: none;
-        background-color: #4285F4;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-
-        &:hover {
-            background-color: #357ABD;
+    
+    .login-card {
+        order: 2;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+    
+        .logo {
+            max-width: 50%;
+            margin-bottom: 20px;
         }
-    }
-
-    .email-login {
-        display: flex;
-        flex-direction: column;
-
-        input {
-            padding: 10px;
+    
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+    
+        .primary-button {
+            padding: 8px 16px;
             margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            width: 100%;
+            border: none;
+            background-color: #FF4747;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+    
+            &:hover {
+                background-color: darken(#FF4747, 10%);
+            }
+        }
+    
+        .secondary-button {
+            padding: 8px 16px;
+            margin-top: 10px;
+            width: 100%;
+            border: none;
+            background-color: #a5a5a5;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+    
+            &:hover {
+                background-color: darken(#a5a5a5, 10%);
+            }
+        }    
+    
+        .email-login {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+    
+            input {
+                padding: 10px;
+                margin-top: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                width: 100%;
+            }
         }
     }
 }

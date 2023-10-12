@@ -27,6 +27,7 @@ const routes: Routes = [
   { path: 'mybids', component: MyBidsComponent },
   { path: 'newbid', component: NewBidComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'login', component: LoginComponent },
 ];
 
 @NgModule({

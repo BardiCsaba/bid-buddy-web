@@ -1,14 +1,19 @@
 <div class="login-container">
-    <h2>Login</h2>
+    <div *ngIf="errorMessage" class="error-card">
+        <p>{{ errorMessage }}</p>
+    </div>
+    <div class="login-card">
+        <img src="assets/images/logo.png" alt="Logo" class="logo">
+        <h2>{{ isLoginMode ? 'Login' : 'Register' }}</h2>
 
-    <!-- Google Login -->
-    <button (click)="loginWithGoogle()">Login with Google</button>
-
-    <!-- Email/Password Login -->
-    <div class="email-login">
-        <input [(ngModel)]="email" type="email" placeholder="Email">
-        <input [(ngModel)]="password" type="password" placeholder="Password">        
-        <button (click)="loginWithEmail()">Login with Email</button>
-        <button (click)="registerWithEmail()">Register</button>
+        <div class="email-login">
+            <input [(ngModel)]="name" *ngIf="!isLoginMode" type="text" placeholder="Name">
+            <input [(ngModel)]="email" type="email" placeholder="Email">
+            <input [(ngModel)]="password" type="password" placeholder="Password">
+            <button class="primary-button" (click)="isLoginMode ? loginWithEmail() : registerWithEmail()">
+                {{ isLoginMode ? 'Login' : 'Register' }}
+            </button>
+            <button class="secondary-button" (click)="toggleMode()">{{ isLoginMode ? 'New user? Register' : 'Have an account? Login' }}</button>
+        </div>
     </div>
 </div>
