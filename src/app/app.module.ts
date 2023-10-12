@@ -23,30 +23,30 @@ const firebaseConfig = {
 };
 
 const routes: Routes = [
-  { path: '', component: MainPageComponent },
-  { path: 'mybids', component: MyBidsComponent },
-  { path: 'newbid', component: NewBidComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'login', component: LoginComponent },
+    { path: '', component: MainPageComponent },
+    { path: 'mybids', component: MyBidsComponent },
+    { path: 'newbid', component: NewBidComponent },
+    { path: 'profile', component: ProfileComponent },
+    { path: 'login', component: LoginComponent },
 ];
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    LoginComponent,
-    MainPageComponent,
-    MyBidsComponent,
-    NewBidComponent,
-    ProfileComponent,
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    AngularFireModule.initializeApp((firebaseConfig)),
-    AngularFireAuthModule,
-    RouterModule.forRoot(routes),
-  ],
-  exports: [RouterModule],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        LoginComponent,
+        MainPageComponent,
+        MyBidsComponent,
+        NewBidComponent,
+        ProfileComponent,
+    ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        AngularFireModule.initializeApp(firebaseConfig),
+        AngularFireAuthModule,
+        RouterModule.forRoot(routes),
+    ],
+    exports: [RouterModule],
+    bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

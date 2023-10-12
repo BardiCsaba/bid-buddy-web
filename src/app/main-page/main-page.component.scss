@@ -1,39 +1,41 @@
 .filters-row {
     display: flex;
-    flex-direction: column; /* stack children vertically */
-    align-items: flex-start; /* align children to the start/left */
+    flex-direction: column;
+    align-items: flex-start;
     margin-bottom: 20px;
 
     .logo-text {
-        order: 1; /* Ensures the logo-text is on top */
-        align-self: flex-start; /* Align to the start/left */
+        order: 1;
+        align-self: flex-start;
         height: 60px;
         margin-bottom: 15px;    
     }
 
     .search-input {
-        order: 2; /* Ensures the search bar is under the logo-text */
-        width: 100%; /* takes full width on mobile */
+        order: 2;
+        width: 100%;
         padding: 8px 12px;
         border: 1px solid #ddd;
         border-radius: 8px;
         margin-bottom: 15px;
+        min-width: 250px;
     
         @media (min-width: 769px) {
-            width: 500px; /* fixed width on desktop */
-            margin-bottom: 15px; /* ensures the margin-bottom is preserved on larger screens */
+            width: 500px;
+            margin-bottom: 15px;
         }
     }    
 
     .filter-buttons {
-        order: 3; /* Ensures the filter buttons are under the search bar */
+        order: 3;
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        width: 100%; /* takes full width on mobile */
+        width: 100%;
+        min-width: 250px;
 
         button {
-            flex: 1; /* distribute space among buttons on mobile */
+            flex: 1;
             padding: 6px 8px;
             border: none;
             border-radius: 16px;
@@ -51,7 +53,7 @@
             }
 
             @media (min-width: 769px) {
-                flex: initial; /* reset flex on desktop */
+                flex: initial;
                 padding: 8px 12px;
             }
         }

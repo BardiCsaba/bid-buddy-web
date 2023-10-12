@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { AngularFireDatabase } from '@angular/fire/compat/database'; // Import for the database
+import { AngularFireDatabase } from '@angular/fire/compat/database';
 
 @Component({
     selector: 'app-profile',
@@ -17,7 +17,7 @@ export class ProfileComponent implements OnInit {
     constructor(
         private afAuth: AngularFireAuth,
         private router: Router,
-        private db: AngularFireDatabase  // Inject AngularFireDatabase
+        private db: AngularFireDatabase
     ) {}
 
     ngOnInit(): void {
@@ -42,7 +42,6 @@ export class ProfileComponent implements OnInit {
     }
 
     changePassword() {
-        // Logic for changing the password using Firebase
         const email = this.email;
         if (email) {
             this.afAuth.sendPasswordResetEmail(email)

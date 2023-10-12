@@ -1,9 +1,11 @@
 <div class="login-container">
-    <div *ngIf="errorMessage" class="error-card">
-        <p>{{ errorMessage }}</p>
-    </div>
     <div class="login-card">
         <img src="assets/images/logo.png" alt="Logo" class="logo">
+
+        <div *ngIf="errorMessage" class="error-card">
+            <p>{{ errorMessage }}</p>
+        </div>
+
         <h2>{{ isLoginMode ? 'Login' : 'Register' }}</h2>
 
         <div class="email-login">

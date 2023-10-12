@@ -13,7 +13,7 @@ export class AppComponent {
     title = 'bid-buddy-web';
     public menuOpen = false;
     profilePicUrl = '/assets/images/profile-pic.jpg';
-    username: string | null = null; // Initializing username as null
+    username: string | null = null;
     
     constructor(private router: Router, private afAuth: AngularFireAuth, private cdr: ChangeDetectorRef) {
         this.afAuth.authState.subscribe(user => {

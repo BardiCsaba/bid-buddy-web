@@ -1,4 +1,3 @@
-/* Global box-sizing reset to ensure consistent sizing */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -45,7 +44,7 @@
 
             .auction-info {
                 padding: 12px;
-                display: flex;  // Set to row, which is default
+                display: flex;
                 justify-content: space-between;
                 align-items: center;
     

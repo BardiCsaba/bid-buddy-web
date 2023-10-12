@@ -28,7 +28,7 @@ export class LoginComponent {
             })
             .catch(error => {
                 console.error('Login error', error);
-                this.errorMessage = this.getFriendlyErrorMessage(error.code); // Update error message
+                this.errorMessage = this.getFriendlyErrorMessage(error.code);
             });
     }
 
@@ -45,7 +45,7 @@ export class LoginComponent {
             })
             .catch(error => {
                 console.error('Registration error', error);
-                this.errorMessage = this.getFriendlyErrorMessage(error.code); // Update error message
+                this.errorMessage = this.getFriendlyErrorMessage(error.code);
             });
     }
 

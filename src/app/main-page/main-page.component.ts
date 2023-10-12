@@ -68,7 +68,7 @@ export class MainPageComponent {
     ];
 
     ngOnInit() {
-        this.filteredAuctions = this.auctions;  // initially show all auctions
+        this.filteredAuctions = this.auctions;
     }
 
     timeLeft(auctionEndDate: Date): Observable<string> {
@@ -103,9 +103,9 @@ export class MainPageComponent {
             };
     
             const intervalId = setInterval(updateTime, 1000);
-            updateTime(); // run immediately
+            updateTime();
     
-            return () => clearInterval(intervalId); // clear interval on unsubscribe
+            return () => clearInterval(intervalId);
         }).pipe(
             takeWhile(val => !val.includes('Ended'))
         );
@@ -121,15 +121,12 @@ export class MainPageComponent {
     }
     
     private updateFilteredAuctions(): void {
-        // Initial set to all auctions
         let currentFiltered = this.auctions;
     
-        // If there's a filter other than 'All' applied, filter the auctions based on type
         if (this.selectedFilter && this.selectedFilter !== 'All') {
             currentFiltered = currentFiltered.filter(auction => auction.type === this.selectedFilter);
         }
     
-        // If there's search text, further filter the already filtered auctions
         if (this.searchText) {
             const searchLower = this.searchText.toLowerCase();
             currentFiltered = currentFiltered.filter(auction => auction.name.toLowerCase().includes(searchLower));
