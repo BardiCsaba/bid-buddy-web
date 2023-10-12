@@ -37,6 +37,7 @@ export class AppComponent {
         } else {
             this.router.navigate(['/login']);
         }
+        this.menuOpen = false;
     }
 
     toggleMenu() {
