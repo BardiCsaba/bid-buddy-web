@@ -1,30 +1,43 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth'; 
-import { ChangeDetectorRef } from '@angular/core';
-
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
     title = 'bid-buddy-web';
     public menuOpen = false;
-    profilePicUrl = '/assets/images/profile-pic.jpg';
+    defaultProfilePicUrl = '/assets/images/profile-pic.jpg';
+    profilePicUrl = this.defaultProfilePicUrl;
     username: string | null = null;
+    private userSubscription: Subscription | null = null;
     
-    constructor(private router: Router, private afAuth: AngularFireAuth, private cdr: ChangeDetectorRef) {
+    constructor(
+        private router: Router,
+        private afAuth: AngularFireAuth,
+        private firestore: AngularFirestore,
+        private cdr: ChangeDetectorRef
+    ) {
         this.afAuth.authState.subscribe(user => {
+            if (this.userSubscription) {
+                this.userSubscription.unsubscribe();
+            }
+
             if (user) {
                 this.username = user.displayName || user.email;
-                this.cdr.detectChanges();
-                this.profilePicUrl = 'assets/images/test.jpg'
+
+                this.userSubscription = this.firestore.collection('users').doc(user.uid).valueChanges()
+                .subscribe((userData: any) => {
+                    this.profilePicUrl = userData.profilePicUrl || this.defaultProfilePicUrl;
+                    this.cdr.detectChanges();
+                });
             } else {
-                this.username = null;
-                this.cdr.detectChanges();
-                this.profilePicUrl = '/assets/images/profile-pic.jpg';
+                this.onLogout();
             }
         }, error => {
             console.error('Error fetching auth state:', error);
@@ -42,5 +55,21 @@ export class AppComponent {
 
     toggleMenu() {
         this.menuOpen = !this.menuOpen;
+    }
+
+    onLogout() {
+        this.username = null;
+        this.profilePicUrl = this.defaultProfilePicUrl;
+        if (this.userSubscription) {
+            this.userSubscription.unsubscribe();
+            this.userSubscription = null;
+        }
+        this.cdr.detectChanges();
+    }
+
+    ngOnDestroy() {
+        if (this.userSubscription) {
+            this.userSubscription.unsubscribe();
+        }
     }
 }

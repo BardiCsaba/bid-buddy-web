@@ -1,8 +1,15 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~font-awesome/css/font-awesome.css";
+
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
-/* You can add global styles to this file, and also import other style files */
+body {
+    margin: 0;
+    background-color: #f6f6f6;
+}
+
 .main-container {
     margin-left: 250px;
     padding: 20px;

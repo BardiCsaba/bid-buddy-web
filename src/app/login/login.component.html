@@ -9,12 +9,16 @@
         <h2>{{ isLoginMode ? 'Login' : 'Register' }}</h2>
 
         <div class="email-login">
-            <input [(ngModel)]="name" *ngIf="!isLoginMode" type="text" placeholder="Name">
+            <input [(ngModel)]="firstName" *ngIf="!isLoginMode" type="text" placeholder="First Name">
+            <input [(ngModel)]="lastName" *ngIf="!isLoginMode" type="text" placeholder="Last Name">
+
             <input [(ngModel)]="email" type="email" placeholder="Email">
             <input [(ngModel)]="password" type="password" placeholder="Password">
+
             <button class="primary-button" (click)="isLoginMode ? loginWithEmail() : registerWithEmail()">
                 {{ isLoginMode ? 'Login' : 'Register' }}
             </button>
+
             <button class="secondary-button" (click)="toggleMode()">{{ isLoginMode ? 'New user? Register' : 'Have an account? Login' }}</button>
         </div>
     </div>

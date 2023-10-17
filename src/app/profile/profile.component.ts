@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
-import { AngularFireDatabase } from '@angular/fire/compat/database';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireStorage } from '@angular/fire/compat/storage';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'app-profile',
@@ -9,26 +11,35 @@ import { AngularFireDatabase } from '@angular/fire/compat/database';
     styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
-    profilePicUrl = '/assets/images/test.jpg';
+    defaultProfilePicUrl = '/assets/images/profile-pic.jpg';
+    profilePicUrl = this.defaultProfilePicUrl;
     username: string | null = null;
     email: string | null = null;
     balance: number = 0;
+    userId: string | null = null;
 
     constructor(
         private afAuth: AngularFireAuth,
         private router: Router,
-        private db: AngularFireDatabase
-    ) {}
+        private firestore: AngularFirestore,
+        private storage: AngularFireStorage
+    ) {}    
 
     ngOnInit(): void {
         this.afAuth.authState.subscribe(user => {
             if (user) {
                 this.username = user.displayName || 'No Name';
                 this.email = user.email || 'No Email';
-                this.balance = 0;
+                this.userId = user.uid;
+    
+                this.firestore.collection('users').doc(user.uid).valueChanges()
+                .subscribe((userData: any) => {
+                    this.balance = userData ? Number(userData.Balance) : 0;
+                    this.profilePicUrl = userData.profilePicUrl || '/assets/images/profile-pic.jpg';
+                });
             }
         });
-    }
+    }    
 
     logout() {
         this.afAuth.signOut()
@@ -56,7 +67,41 @@ export class ProfileComponent implements OnInit {
         }
     }
 
+    uploadProfilePic(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            const filePath = `profile_pictures/${this.userId}`;
+            const fileRef = this.storage.ref(filePath);
+            const task = this.storage.upload(filePath, file);
+    
+            task.snapshotChanges().pipe(
+                finalize(() => {
+                    fileRef.getDownloadURL().subscribe(downloadURL => {
+                        this.profilePicUrl = downloadURL;
+                        if (this.userId) {
+                            this.firestore.collection('users').doc(this.userId).update({
+                                profilePicUrl: this.profilePicUrl
+                            });
+                        }
+                    });
+                })
+            ).subscribe();
+        }
+    }    
+
     addFunds() {
         this.balance += 100;
+        if (this.userId) {
+            // Update the balance in Firestore
+            this.firestore.collection('users').doc(this.userId).update({
+                Balance: String(this.balance)
+            })
+            .then(() => {
+                console.log('Balance updated successfully in Firestore');
+            })
+            .catch(error => {
+                console.error('Error updating balance in Firestore', error);
+            });
+        }
     }
 }

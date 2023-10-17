@@ -1,9 +1,15 @@
 <div class="profile-card">
     <h2>User Profile</h2>
 
+    <input type="file" (change)="uploadProfilePic($event)" style="display: none;" #fileInput>
+
     <!-- Profile Picture -->
-    <div class="profile-pic-container">
+    <div class="profile-pic-container" (click)="fileInput.click()">
         <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
+        <div class="overlay">
+            <i class="fas fa-camera"></i>
+            <span>Change Photo</span>
+        </div>
     </div>
     
     <!-- User Details -->
