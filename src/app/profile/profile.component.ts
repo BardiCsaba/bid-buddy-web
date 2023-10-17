@@ -12,7 +12,7 @@ import { finalize } from 'rxjs/operators';
 })
 export class ProfileComponent implements OnInit {
     defaultProfilePicUrl = '/assets/images/profile-pic.jpg';
-    profilePicUrl = this.defaultProfilePicUrl;
+    profilePicUrl = '';
     username: string | null = null;
     email: string | null = null;
     balance: number = 0;
@@ -34,8 +34,8 @@ export class ProfileComponent implements OnInit {
     
                 this.firestore.collection('users').doc(user.uid).valueChanges()
                 .subscribe((userData: any) => {
-                    this.balance = userData ? Number(userData.Balance) : 0;
-                    this.profilePicUrl = userData.profilePicUrl || '/assets/images/profile-pic.jpg';
+                    this.balance = userData && userData.balance ? Number(userData.balance) : 0;
+                    this.profilePicUrl = userData.profilePicUrl || this.defaultProfilePicUrl;
                 });
             }
         });
@@ -92,9 +92,8 @@ export class ProfileComponent implements OnInit {
     addFunds() {
         this.balance += 100;
         if (this.userId) {
-            // Update the balance in Firestore
             this.firestore.collection('users').doc(this.userId).update({
-                Balance: String(this.balance)
+                balance: this.balance
             })
             .then(() => {
                 console.log('Balance updated successfully in Firestore');
@@ -103,5 +102,5 @@ export class ProfileComponent implements OnInit {
                 console.error('Error updating balance in Firestore', error);
             });
         }
-    }
+    }    
 }

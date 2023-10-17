@@ -33,6 +33,7 @@ export class AppComponent implements OnDestroy {
 
                 this.userSubscription = this.firestore.collection('users').doc(user.uid).valueChanges()
                 .subscribe((userData: any) => {
+                    this.username = `${userData.firstName} ${userData.lastName}`.trim();
                     this.profilePicUrl = userData.profilePicUrl || this.defaultProfilePicUrl;
                     this.cdr.detectChanges();
                 });

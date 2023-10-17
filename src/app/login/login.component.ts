@@ -54,10 +54,12 @@ export class LoginComponent {
     
                 if (userId) {
                     this.firestore.collection('users').doc(userId).set({
-                        Balance: '0',
-                        Email: this.email,
-                        FirstName: this.firstName,
-                        LastName: this.lastName
+                        balance: '0',
+                        email: this.email,
+                        firstName: this.firstName,
+                        lastName: this.lastName,
+                        userId: userId
+                        //user ID is automatically added to the document
                     })
                     .then(() => {
                         console.log('User record created in Firestore');
