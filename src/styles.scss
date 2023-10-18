@@ -99,3 +99,70 @@ body {
         }
     }
 }
+
+.filters-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+
+    .logo-text {
+        order: 1;
+        align-self: flex-start;
+        height: 60px;
+        margin-bottom: 15px;
+    }
+
+    .search-input, .add-auction-button {
+        order: 2;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        min-width: 250px;
+
+        @media (min-width: 769px) {
+            width: 500px;
+        }
+    }
+
+    .add-auction-button {
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+
+    .filter-buttons {
+        order: 3;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+        min-width: 250px;
+
+        button {
+            flex: 1;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 16px;
+            background-color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+
+            &.active {
+                background-color: #FF4747;
+                color: white;
+            }
+
+            &:hover {
+                background-color: darken(#FF4747, 10%);
+            }
+
+            @media (min-width: 769px) {
+                flex: initial;
+                padding: 8px 12px;
+            }
+        }
+    }
+}

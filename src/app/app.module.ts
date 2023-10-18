@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
@@ -9,7 +9,7 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AppComponent } from './app.component';
 import { MainPageComponent } from './main-page/main-page.component';
 import { MyBidsComponent } from './my-bids/my-bids.component';
-import { NewBidComponent } from './new-bid/new-bid.component';
+import { MyAuctionComponent } from './my-auctions/my-auctions.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LoginComponent } from './login/login.component';
 
@@ -24,8 +24,8 @@ const firebaseConfig = {
 
 const routes: Routes = [
     { path: '', component: MainPageComponent },
+    { path: 'myAuctions', component: MyAuctionComponent },
     { path: 'mybids', component: MyBidsComponent },
-    { path: 'newbid', component: NewBidComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'login', component: LoginComponent },
 ];
@@ -36,12 +36,13 @@ const routes: Routes = [
         LoginComponent,
         MainPageComponent,
         MyBidsComponent,
-        NewBidComponent,
+        MyAuctionComponent,
         ProfileComponent,
     ],
     imports: [
         BrowserModule,
         FormsModule,
+        ReactiveFormsModule,
         AngularFireModule.initializeApp(firebaseConfig),
         AngularFireAuthModule,
         RouterModule.forRoot(routes),

@@ -59,7 +59,6 @@ export class LoginComponent {
                         firstName: this.firstName,
                         lastName: this.lastName,
                         userId: userId
-                        //user ID is automatically added to the document
                     })
                     .then(() => {
                         console.log('User record created in Firestore');
