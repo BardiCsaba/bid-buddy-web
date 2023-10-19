@@ -14,7 +14,8 @@
     .price-wrapper {
         position: relative;
         display: flex;
-
+        z-index: 1;
+        
         .dollar-sign {
             position: absolute;
             left: 10px;

@@ -25,6 +25,8 @@
     background-color: #444;
     overflow-y: auto;
     font-family: 'Arial', sans-serif;
+    z-index: 1000;
+    
     @media (max-width: 768px) {
         display: none;
         position: fixed;
