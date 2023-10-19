@@ -1,12 +1,9 @@
 <div class="filters-row">
     <img src="assets/images/logo-text.png" alt="Logo" class="logo-text">
     <input class="search-input" [(ngModel)]="auctionService.searchText" placeholder="Search" (keyup)="auctionService.searchAuctions()">
-    <div class="filter-buttons">
-        <button *ngFor="let filter of auctionService.filters" [ngClass]="{ 'active': filter === auctionService.selectedFilter }" (click)="auctionService.selectFilter(filter)">
-            {{ filter }}
-        </button>
-    </div>
-    <button class="add-auction-button" (click)="showForm()">+ Add New Auction</button>
+    <button class="add-auction-button" (click)="toggleForm()">
+        {{ isFormVisible ? 'Close' : '+ Add New Auction' }}
+    </button>
 </div>
 
 <div *ngIf="isFormVisible" class="form-container">
@@ -24,7 +21,7 @@
         <label>
             Type:
             <select formControlName="type">
-                <option *ngFor="let filter of auctionService.filters" [value]="filter">{{filter}}</option>
+                <option *ngFor="let filter of (auctionService.filters | async)" [value]="filter" [hidden]="filter === 'All'">{{filter}}</option>
             </select>
             <div *ngIf="isFieldInvalid('type', 'required')" class="error-text">Type is required.</div>
         </label>
@@ -32,7 +29,8 @@
             End Date:
             <input type="datetime-local" formControlName="endDate">
             <div *ngIf="isFieldInvalid('endDate', 'required')" class="error-text">End Date is required.</div>
-        </label>
+            <div *ngIf="isFieldInvalid('endDate', 'invalidEndDate')" class="error-text">End Date should be at least 24 hours from now.</div>
+        </label>        
         <label>
             Starting Price:
             <input formControlName="startingPrice" type="number">
@@ -40,15 +38,16 @@
         </label>
         <label>
             Upload Image:
-            <input type="file" (change)="onImageUpload($event)">
-            <div *ngIf="isFieldInvalid('imageSrc', 'required')" class="error-text">Image is required.</div>        
+            <input type="file" (change)="onImageUpload($event)" accept="image/*">
+            <div *ngIf="isFieldInvalid('imageSrc', 'required')" class="error-text">Image is required.</div>
+            <div *ngIf="isFieldInvalid('imageFile', 'invalidFileType')" class="error-text">Invalid file type. Please upload an image.</div>
         </label>
         <button type="submit">Submit</button>
     </form>
 </div>
 
 <div class="auctions-list">
-    <div *ngFor="let auction of auctionService.filteredAuctions" class="auction-item">
+    <div *ngFor="let auction of myAuctions" class="auction-item">
         <img [src]="auction.imageSrc" alt="{{ auction.title }}">
         <div class="auction-info">
             <div class="info-text">

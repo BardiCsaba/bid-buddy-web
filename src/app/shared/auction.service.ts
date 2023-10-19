@@ -1,43 +1,80 @@
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, takeWhile, map } from 'rxjs';
 import { Auction } from '../models/auction.model';
+
+export enum ViewContext {
+    AllAuctions,
+    MyAuctions,
+}
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuctionService {
+    viewContext: ViewContext | undefined;
     selectedFilter = 'All';
-    filters: string[] = ['All', 'Electronics', 'Clothing', 'Books', 'Home Decor', "Sports", "Toys", "Other"];
     searchText: string = '';
-    auctions: Auction[] = [
-        {
-            title: 'Table Tennis Set',
-            description: 'Table tennis set with 4 paddles and 8 balls',
-            type: 'Sports',
-            endDate: new Date('2023-10-24T14:00:00'),
-            startingPrice: 20.0,
-            currentPrice: 20.0,
-            isActive: true,
-            createdBy: 'user1',
-            imageSrc: 'assets/images/test.jpg'
-        },
-    ];
-    filteredAuctions: Auction[] = this.auctions;
+    filters: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['All']);
+    filteredAuctions: BehaviorSubject<Auction[]> = new BehaviorSubject<Auction[]>([]);
 
+    private _auctions: Auction[] = [];
 
-
-    constructor(private firestore: AngularFirestore) {}
-
-    ngOnInit() {
-        this.filteredAuctions = this.auctions;
+    constructor(private firestore: AngularFirestore, private afAuth: AngularFireAuth) {
+        this.loadAllAuctions();
+        this.loadAuctionTypes();
     }
 
-    addNewAuction(auction: Auction): Promise<void> {
-        const auctionId = this.firestore.createId();
-        auction.id = auctionId;
+    private loadAllAuctions() {
+        this.firestore.collection('auctions').snapshotChanges().subscribe(data => {
+            this._auctions = data.map(e => {
+                const data = e.payload.doc.data() as any;
+                data.endDate = data.endDate.toDate();
 
-        return this.firestore.collection('auctions').doc(auctionId).set(auction);
+                return {
+                    id: e.payload.doc.id,
+                    ...data
+                } as Auction;
+            });
+            this.updateFilteredAuctions();
+        });
+    }
+
+    private loadAuctionTypes() {
+        this.firestore.collection('auction-types', ref => ref.orderBy('order')).snapshotChanges().subscribe(data => {
+            const auctionTypes = data.map(e => (e.payload.doc.data() as any).name);
+            this.filters.next(['All', ...auctionTypes]);
+        });
+    }
+
+    getAvailableFilters(): Observable<string[]> {
+        return this.filters.pipe(map((filtersArray: any[]) => filtersArray.filter(filter => filter !== 'All')));
+    }
+
+    getAllAuctions(): Auction[] {
+        return this._auctions;
+    }    
+
+    async getMyAuctions(): Promise<Auction[]> {
+        const user = await this.afAuth.currentUser;
+        if (!user) return [];
+        return this._auctions.filter(auction => auction.createdBy === user.uid);
+    }
+
+    async addNewAuction(auction: Auction): Promise<void> {
+        const user = await this.afAuth.currentUser;
+        if (!user) {
+            throw new Error('No user is currently authenticated.');
+        }
+        const auctionId = this.firestore.createId();
+        auction.createdBy = user.uid;
+        auction.id = auctionId;
+        auction.isActive = true;
+
+        return this.firestore.collection('auctions').doc(auctionId).set(auction).then(() => {
+            this.loadAllAuctions();
+        });
     }
 
     selectFilter(filter: string): void {
@@ -49,45 +86,92 @@ export class AuctionService {
         this.updateFilteredAuctions();
     }
 
-    private updateFilteredAuctions(): void {
-        let currentFiltered = this.auctions;
-
+    updateFilteredAuctions(): void {
+        let currentFiltered = [...this._auctions];
+    
+        // Filter by selected type.
         if (this.selectedFilter && this.selectedFilter !== 'All') {
             currentFiltered = currentFiltered.filter(auction => auction.type === this.selectedFilter);
         }
-
+    
+        // Search by title.
         if (this.searchText) {
             const searchLower = this.searchText.toLowerCase();
             currentFiltered = currentFiltered.filter(auction => auction.title.toLowerCase().includes(searchLower));
         }
-
-        this.filteredAuctions = currentFiltered;
-    }
+    
+        // Filter by view context.
+        if (this.viewContext === ViewContext.MyAuctions) {
+            this.getMyAuctions().then(myAuctions => {
+                this.filteredAuctions.next(currentFiltered.filter(auction => myAuctions.includes(auction)));
+            });
+        } else {
+            this.filteredAuctions.next(currentFiltered);
+        }
+    }       
 
     timeLeft(auctionEndDate: Date): Observable<string> {
-        const timeDiff = auctionEndDate.getTime() - new Date().getTime();
-        const seconds = Math.floor(timeDiff / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        let timeLeftStr = '';
-        if (days > 0) {
-            timeLeftStr += `${days}d `;
-        }
-        if (hours > 0) {
-            timeLeftStr += `${hours % 24}h `;
-        }
-        if (minutes > 0) {
-            timeLeftStr += `${minutes % 60}m `;
-        }
-        if (seconds > 0) {
-            timeLeftStr += `${seconds % 60}s`;
-        }
-
-        return new Observable<string>((observer) => {
-            observer.next(timeLeftStr);
-            observer.complete();
+        return new Observable<string>(observer => {
+            const updateTime = () => {
+                const now = new Date();
+                let difference = auctionEndDate.getTime() - now.getTime();
+    
+                if (difference < 0) {
+                    observer.next('Ended');
+                    clearInterval(intervalId);
+                    setTimeout(() => observer.complete(), 1000);
+                    return;
+                }
+    
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                difference -= days * (1000 * 60 * 60 * 24);
+    
+                const hours = Math.floor(difference / (1000 * 60 * 60));
+                difference -= hours * (1000 * 60 * 60);
+    
+                const minutes = Math.floor(difference / (1000 * 60));
+    
+                if (days > 0) {
+                    observer.next(`Ends in ${days}d ${hours}h`);
+                } else if (hours > 0) {
+                    observer.next(`Ends in ${hours}h ${minutes}m`);
+                } else if (minutes > 0) {
+                    const sec = Math.floor((difference % (1000 * 60)) / 1000);
+                    observer.next(`Ends in ${minutes}m ${sec}s`);
+                } else {
+                    const sec = Math.floor(difference / 1000);
+                    observer.next(`Ends in ${sec}s`);
+                }
+            };
+    
+            const intervalId = setInterval(updateTime, 1000);
+            updateTime();
+    
+            return () => clearInterval(intervalId);
         });
+    }    
+
+    /*
+    populateAuctionTypes(): Promise<void[]> {
+        const auctionTypes = [
+            { name: 'Electronics', order: 1 },
+            { name: 'Clothing', order: 2 },
+            { name: 'Books', order: 3 },
+            { name: 'Home Decor', order: 4 },
+            { name: 'Sports', order: 5 },
+            { name: 'Toys', order: 6 },
+            { name: 'Other', order: 99 },
+        ];
+
+        const promises = auctionTypes.map(type => {
+            const id = this.firestore.createId();
+            return this.firestore.collection('auction-types').doc(id).set({
+                id,
+                ...type
+            });
+        });
+
+        return Promise.all(promises);
     }
-}
+    */
+}    

@@ -24,10 +24,11 @@ const firebaseConfig = {
 
 const routes: Routes = [
     { path: '', component: MainPageComponent },
-    { path: 'myAuctions', component: MyAuctionComponent },
-    { path: 'mybids', component: MyBidsComponent },
+    { path: 'my-auctions', component: MyAuctionComponent },
+    { path: 'my-bids', component: MyBidsComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'login', component: LoginComponent },
+    { path: '**', redirectTo: '/' },
 ];
 
 @NgModule({

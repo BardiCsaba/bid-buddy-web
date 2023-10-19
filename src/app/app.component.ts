@@ -45,9 +45,9 @@ export class AppComponent implements OnDestroy {
         });
     }
 
-    goToProfile(): void {
+    navigateTo(route: string): void {
         if (this.username) {
-            this.router.navigate(['/profile']);
+            this.router.navigate([`/${route}`]);
         } else {
             this.router.navigate(['/login']);
         }

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn, Validators, FormBuilder } from '@angular/forms';
 import { AngularFireStorage } from '@angular/fire/compat/storage';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { AuctionService } from '../shared/auction.service';
+import { AuctionService, ViewContext } from '../shared/auction.service';
 import { Auction } from '../models/auction.model';
 
 @Component({
@@ -12,50 +12,90 @@ import { Auction } from '../models/auction.model';
     styleUrls: ['./my-auctions.component.scss'],
 })
 export class MyAuctionComponent {
+    myAuctions: Auction[] = [];
+    formSubmitted = false;
     isFormVisible = false;
     uploadedImageURL: Observable<string | null> | undefined;
     auctionForm = this.fb.group({
         title: ['', Validators.required],
         description: ['', Validators.required],
         type: ['', Validators.required],
-        endDate: ['', Validators.required],
+        endDate: ['', [Validators.required, this.endDateValidator()]],
         startingPrice: [null, Validators.required],
         imageSrc: [null as string | null, Validators.required],
-    });    
+        imageFile: [null as File | null, [Validators.required, this.imageFileTypeValidator()]],
+    });
 
     constructor(
-        public auctionService: AuctionService, 
-        private fb: FormBuilder, 
-        private storage: AngularFireStorage) {}
+        public auctionService: AuctionService,
+        private fb: FormBuilder,
+        private storage: AngularFireStorage) { }
 
-    ngOnInit() {
+        ngOnInit() {
+            this.auctionService.viewContext = ViewContext.MyAuctions;
+            this.auctionService.updateFilteredAuctions();
+            this.auctionService.filteredAuctions.subscribe((auctions) => {
+                this.myAuctions = auctions;
+            });
+        }
+
+    endDateValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const selectedDate = new Date(control.value);
+            const currentDate = new Date();
+            currentDate.setHours(currentDate.getHours() + 24);
+
+            if (selectedDate <= currentDate) {
+                return { invalidEndDate: true };
+            }
+            return null;
+        };
     }
 
+    imageFileTypeValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const file = control.value as File | null;
+            if (file) {
+                const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validImageTypes.includes(file.type)) {
+                    return { invalidFileType: true };
+                }
+            }
+            return null;
+        };
+    }     
+
     onImageUpload(event: any) {
-        const file = event.target.files[0];
+        const file: File = event.target.files[0];
+        this.auctionForm.patchValue({ imageFile: file });
+    
+        if (this.auctionForm.get('imageFile')?.invalid) {
+            console.error('Invalid file type. Please upload an image.');
+            return;
+        }
+    
         const filePath = `auctions/${new Date().getTime()}_${file.name}`;
         const fileRef = this.storage.ref(filePath);
         const task = this.storage.upload(filePath, file);
-
+    
         task.snapshotChanges().pipe(
             finalize(() => {
                 this.uploadedImageURL = fileRef.getDownloadURL();
                 this.uploadedImageURL.subscribe(url => {
                     if (url) {
                         this.auctionForm.patchValue({ imageSrc: url });
-                        file.value = '';
+                        event.target.value = '';
                     }
                 });
             })
         )
         .subscribe();
-    }
+    }    
 
     onSubmit() {
+        this.formSubmitted = true;
         if (this.auctionForm.valid) {
             const newAuction: Auction = {
-                createdBy: 'user1',
-                isActive: true,
                 currentPrice: this.auctionForm.value.startingPrice!,
                 title: this.auctionForm.value.title!,
                 description: this.auctionForm.value.description!,
@@ -64,10 +104,11 @@ export class MyAuctionComponent {
                 startingPrice: this.auctionForm.value.startingPrice!,
                 imageSrc: this.auctionForm.value.imageSrc!,
             };
+            this.auctionForm.patchValue({ imageFile: null });
             this.auctionService
                 .addNewAuction(newAuction)
                 .then(() => {
-                    this.hideForm();
+                    this.toggleForm();
                 })
                 .catch((error) => {
                     console.error('Error adding auction: ', error);
@@ -77,14 +118,15 @@ export class MyAuctionComponent {
 
     isFieldInvalid(fieldName: string, validationType: string): boolean {
         const control = this.auctionForm.get(fieldName);
-        return !!(control?.touched && control?.hasError(validationType));
+        return !!(this.formSubmitted && control?.hasError(validationType));
     }
 
-    showForm() {
-        this.isFormVisible = true;
-    }
-
-    hideForm() {
-        this.isFormVisible = false;
+    toggleForm() {
+        if (this.isFormVisible) {
+            this.isFormVisible = false;
+        } else {
+            this.auctionForm.reset();
+            this.isFormVisible = true;
+        }
     }
 }

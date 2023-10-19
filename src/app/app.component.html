@@ -1,13 +1,13 @@
 <!-- Sidebar Navigation -->
 <aside class="sidenav" [class.open]="menuOpen">
-    <div class="profile-section" (click)="goToProfile()">
+    <div class="profile-section" (click)="navigateTo('profile')">
         <img [src]="profilePicUrl" alt="Profile Picture" class="profile-pic"/>
         <span class="username">{{ username ? username : 'Log in / Register' }}</span>
     </div>
     <ul class="menu">
         <li><a routerLink="/" routerLinkActive="active" (click)="menuOpen = false" [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
-        <li><a routerLink="/myAuctions" (click)="menuOpen = false" routerLinkActive="active">My Auctions</a></li>
-        <li><a routerLink="/mybids" (click)="menuOpen = false" routerLinkActive="active">My Bids</a></li>
+        <li><a (click)="navigateTo('my-auctions')" routerLinkActive="active">My Auctions</a></li>
+        <li><a (click)="navigateTo('my-bids')" routerLinkActive="active">My Bids</a></li>
     </ul>
 </aside>
 

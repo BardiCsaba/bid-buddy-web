@@ -2,14 +2,14 @@
     <img src="assets/images/logo-text.png" alt="Logo" class="logo-text">
     <input class="search-input" [(ngModel)]="auctionService.searchText" placeholder="Search" (keyup)="auctionService.searchAuctions()">
     <div class="filter-buttons">
-        <button *ngFor="let filter of auctionService.filters" [ngClass]="{ 'active': filter === auctionService.selectedFilter }" (click)="auctionService.selectFilter(filter)">
+        <button *ngFor="let filter of auctionService.filters | async" [ngClass]="{ 'active': filter === auctionService.selectedFilter }" (click)="auctionService.selectFilter(filter)">
             {{ filter }}
         </button>
     </div>
 </div>
 
 <div class="auctions-list">
-    <div *ngFor="let auction of auctionService.filteredAuctions" class="auction-item">
+    <div *ngFor="let auction of auctions" class="auction-item">
         <img [src]="auction.imageSrc" alt="{{ auction.title }}">
         <div class="auction-info">
             <div class="info-text">

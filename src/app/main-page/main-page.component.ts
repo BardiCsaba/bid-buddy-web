@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { AuctionService } from '../shared/auction.service';
+import { AuctionService, ViewContext } from '../shared/auction.service';
+import { Auction } from '../models/auction.model';
 
 @Component({
     selector: 'app-main-page',
@@ -7,7 +8,15 @@ import { AuctionService } from '../shared/auction.service';
     styleUrls: ['./main-page.component.scss']
 })
 export class MainPageComponent {
+    auctions: Auction[] = [];
+
     constructor(public auctionService: AuctionService) { }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.auctionService.viewContext = ViewContext.AllAuctions;
+        this.auctionService.updateFilteredAuctions();
+        this.auctionService.filteredAuctions.subscribe(auctions => {
+            this.auctions = auctions;
+        });
+    }
 }
