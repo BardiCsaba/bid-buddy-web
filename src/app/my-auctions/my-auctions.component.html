@@ -33,10 +33,13 @@
         </label>        
         <label>
             Starting Price:
-            <input formControlName="startingPrice" type="number">
+            <div class="price-wrapper">
+                <span class="dollar-sign">$</span>
+                <input class="price-input" formControlName="startingPrice" type="number">
+            </div>
             <div *ngIf="isFieldInvalid('startingPrice', 'required')" class="error-text">Starting Price is required.</div>
             <div *ngIf="isFieldInvalid('startingPrice', 'invalidStartingPrice')" class="error-text">Starting Price must be greater than 0.</div>
-        </label>
+        </label>        
         <label>
             Upload Image:
             <input type="file" (change)="onImageUpload($event)" accept="image/*">

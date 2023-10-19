@@ -21,7 +21,7 @@ export class MyAuctionComponent {
         description: ['', Validators.required],
         type: ['', Validators.required],
         endDate: ['', [Validators.required, this.endDateValidator()]],
-        startingPrice: [null, [Validators.required, this.startingPriceValidator()]],
+        startingPrice: [null as number | null, [Validators.required, this.startingPriceValidator()]],
         imageSrc: [null as string | null, Validators.required],
         imageFile: [null as File | null, [Validators.required, this.imageFileTypeValidator()]],
     });
@@ -137,6 +137,7 @@ export class MyAuctionComponent {
             const defaultEndDate = new Date();
             defaultEndDate.setHours(defaultEndDate.getHours() + 27);
             this.auctionForm.patchValue({ endDate: defaultEndDate.toISOString().slice(0, 16)});
+            this.auctionForm.patchValue({ startingPrice: 1 });
             this.isFormVisible = true;
         }
     }
