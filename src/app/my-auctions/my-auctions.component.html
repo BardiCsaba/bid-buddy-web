@@ -35,6 +35,7 @@
             Starting Price:
             <input formControlName="startingPrice" type="number">
             <div *ngIf="isFieldInvalid('startingPrice', 'required')" class="error-text">Starting Price is required.</div>
+            <div *ngIf="isFieldInvalid('startingPrice', 'invalidStartingPrice')" class="error-text">Starting Price must be greater than 0.</div>
         </label>
         <label>
             Upload Image:

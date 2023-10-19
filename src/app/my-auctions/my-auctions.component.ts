@@ -21,7 +21,7 @@ export class MyAuctionComponent {
         description: ['', Validators.required],
         type: ['', Validators.required],
         endDate: ['', [Validators.required, this.endDateValidator()]],
-        startingPrice: [null, Validators.required],
+        startingPrice: [null, [Validators.required, this.startingPriceValidator()]],
         imageSrc: [null as string | null, Validators.required],
         imageFile: [null as File | null, [Validators.required, this.imageFileTypeValidator()]],
     });
@@ -31,13 +31,23 @@ export class MyAuctionComponent {
         private fb: FormBuilder,
         private storage: AngularFireStorage) { }
 
-        ngOnInit() {
-            this.auctionService.viewContext = ViewContext.MyAuctions;
-            this.auctionService.updateFilteredAuctions();
-            this.auctionService.filteredAuctions.subscribe((auctions) => {
-                this.myAuctions = auctions;
-            });
-        }
+    ngOnInit() {
+        this.auctionService.viewContext = ViewContext.MyAuctions;
+        this.auctionService.updateFilteredAuctions();
+        this.auctionService.filteredAuctions.subscribe((auctions) => {
+            this.myAuctions = auctions;
+        });
+    }
+
+    startingPriceValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const price = control.value;
+            if (price <= 0) {
+                return { invalidStartingPrice: true };
+            }
+            return null;
+        };
+    }    
 
     endDateValidator(): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
@@ -84,7 +94,6 @@ export class MyAuctionComponent {
                 this.uploadedImageURL.subscribe(url => {
                     if (url) {
                         this.auctionForm.patchValue({ imageSrc: url });
-                        event.target.value = '';
                     }
                 });
             })
@@ -125,7 +134,9 @@ export class MyAuctionComponent {
         if (this.isFormVisible) {
             this.isFormVisible = false;
         } else {
-            this.auctionForm.reset();
+            const defaultEndDate = new Date();
+            defaultEndDate.setHours(defaultEndDate.getHours() + 27);
+            this.auctionForm.patchValue({ endDate: defaultEndDate.toISOString().slice(0, 16)});
             this.isFormVisible = true;
         }
     }
