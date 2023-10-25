@@ -1,7 +1,12 @@
+import firebase from 'firebase/compat/app';
+
 export class Bid {
     constructor(
-        userId: string,
-        amount: number,
-        bidTime: Date,
+        public userId: string,
+        public amount: number,
+        public timestamp: firebase.firestore.Timestamp,
+        public profilePicUrl?: string,
+        public displayName?: string,
     ) { }
 }
+

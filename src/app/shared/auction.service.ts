@@ -1,8 +1,11 @@
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, takeWhile, map } from 'rxjs';
+import { Injectable, } from '@angular/core';
+import { Observable, BehaviorSubject, map, combineLatest } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Auction } from '../models/auction.model';
+import { Bid } from '../models/bid.model';
+import { User } from '../models/user.model';
 
 export enum ViewContext {
     AllAuctions,
@@ -13,6 +16,7 @@ export enum ViewContext {
     providedIn: 'root',
 })
 export class AuctionService {
+    defaultProfilePicUrl = '/assets/images/profile-pic.jpg';
     viewContext: ViewContext | undefined;
     selectedFilter = 'All';
     searchText: string = '';
@@ -108,7 +112,83 @@ export class AuctionService {
         } else {
             this.filteredAuctions.next(currentFiltered);
         }
-    }       
+    }
+
+    getAuctionWithBids(auctionId: string): Observable<Auction> {
+        const auction$ = this.firestore.collection('auctions').doc(auctionId).snapshotChanges().pipe(
+            map(auctionSnapshot => {
+                const auctionData = auctionSnapshot.payload.data() as any;
+                auctionData.endDate = auctionData.endDate.toDate();
+                return {
+                    id: auctionSnapshot.payload.id,
+                    ...auctionData
+                } as Auction;
+            })
+        );
+    
+        const bids$ = this.firestore.collection('auctions').doc(auctionId).collection<Bid>('bids').snapshotChanges().pipe(
+            switchMap(bidSnapshots => {
+                const bids = bidSnapshots.map(bidSnapshot => bidSnapshot.payload.doc.data() as Bid);
+                return combineLatest(
+                    bids.map(bid => 
+                        this.firestore.collection('users').doc(bid.userId).get().pipe(
+                            map(userDoc => {
+                                const userData = userDoc.data() as User;
+                                if (userData.profilePicUrl === undefined) {
+                                    bid.profilePicUrl = this.defaultProfilePicUrl;
+                                } else {
+                                    bid.profilePicUrl = userData.profilePicUrl;
+                                }
+                                if (userData.firstName) {
+                                    bid.displayName = userData.firstName + ' ' + userData.lastName;
+                                } else {
+                                    bid.displayName = 'Anonymous';
+                                }
+
+                                console.log(bid);
+                                return bid;
+                            })                            
+                        )
+                    )
+                );
+            }),
+            map(bids => bids.sort((a, b) => b.amount - a.amount))
+        );
+    
+        return combineLatest([auction$, bids$]).pipe(
+            map(([auction, bids]) => {
+                auction.bids = bids;
+                return auction;
+            })
+        );
+    }
+    
+    async placeBidForAuction(auctionId: string, userBidAmount: number): Promise<boolean> {
+        const auctionRef = this.firestore.collection('auctions').doc(auctionId);
+        const bidsCollectionRef = auctionRef.collection('bids');
+    
+        const batch = this.firestore.firestore.batch();
+    
+        batch.update(auctionRef.ref, { currentPrice: userBidAmount });
+    
+        const bidId = this.firestore.createId();
+        const user = await this.afAuth.currentUser;
+        batch.set(bidsCollectionRef.doc(bidId).ref, {
+            id: bidId,
+            userId: (await this.afAuth.currentUser)?.uid,
+            amount: userBidAmount,
+            timestamp: new Date(),
+            
+        });
+    
+        try {
+            await batch.commit();
+            return true;
+        } catch (error) {
+            console.error('Error placing bid:', error);
+            return false;
+        }
+    }
 
     timeLeft(auctionEndDate: Date): Observable<string> {
         return new Observable<string>(observer => {

@@ -7,11 +7,11 @@ export class Auction {
         public type: string,
         public endDate: Date,
         public startingPrice: number,
+        public currentPrice: number,
         public isActive?: boolean,
         public createdBy?: string,
         public imageSrc?: string,
         public id?: string,
-        public currentPrice?: number,
         public bids?: Array<Bid>,
         public winningBidder?: string,
     ) { }

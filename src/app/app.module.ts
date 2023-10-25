@@ -9,9 +9,10 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AppComponent } from './app.component';
 import { MainPageComponent } from './main-page/main-page.component';
 import { MyBidsComponent } from './my-bids/my-bids.component';
-import { MyAuctionComponent } from './my-auctions/my-auctions.component';
+import { MyAuctionsComponent } from './my-auctions/my-auctions.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LoginComponent } from './login/login.component';
+import { AuctionDetailComponent } from './auction-detail/auction-detail.component';
 
 const firebaseConfig = {
     apiKey: 'AIzaSyBn12GXVxNM_VwQV2knOvKex7KSMQwsKyU',
@@ -24,10 +25,11 @@ const firebaseConfig = {
 
 const routes: Routes = [
     { path: '', component: MainPageComponent },
-    { path: 'my-auctions', component: MyAuctionComponent },
+    { path: 'my-auctions', component: MyAuctionsComponent },
     { path: 'my-bids', component: MyBidsComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'login', component: LoginComponent },
+    { path: 'auction/:id', component: AuctionDetailComponent },
     { path: '**', redirectTo: '/' },
 ];
 
@@ -37,8 +39,9 @@ const routes: Routes = [
         LoginComponent,
         MainPageComponent,
         MyBidsComponent,
-        MyAuctionComponent,
+        MyAuctionsComponent,
         ProfileComponent,
+        AuctionDetailComponent,
     ],
     imports: [
         BrowserModule,

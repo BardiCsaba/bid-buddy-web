@@ -9,7 +9,7 @@
 </div>
 
 <div class="auctions-list">
-    <div *ngFor="let auction of auctions" class="auction-item">
+    <div *ngFor="let auction of auctions" class="auction-item" [routerLink]="['/auction', auction.id]">
         <img [src]="auction.imageSrc" alt="{{ auction.title }}">
         <div class="auction-info">
             <div class="info-text">

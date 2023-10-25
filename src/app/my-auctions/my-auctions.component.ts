@@ -11,7 +11,7 @@ import { Auction } from '../models/auction.model';
     templateUrl: './my-auctions.component.html',
     styleUrls: ['./my-auctions.component.scss'],
 })
-export class MyAuctionComponent {
+export class MyAuctionsComponent {
     myAuctions: Auction[] = [];
     formSubmitted = false;
     isFormVisible = false;
@@ -37,6 +37,7 @@ export class MyAuctionComponent {
         this.auctionService.filteredAuctions.subscribe((auctions) => {
             this.myAuctions = auctions;
         });
+        console.log(this.myAuctions);
     }
 
     startingPriceValidator(): ValidatorFn {

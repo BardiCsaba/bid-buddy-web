@@ -1,0 +1,53 @@
+<div *ngIf="auction" class="auction-details">
+
+    <!-- Auction Image -->
+    <div class="auction-image-wrapper">
+        <img [src]="auction.imageSrc" alt="{{ auction.title }}" class="auction-image">
+    </div>
+
+    <!-- Auction Title -->
+    <h1 class="auction-title">{{ auction.title }}</h1>
+
+    <!-- Auction Description -->
+    <p class="auction-description">{{ auction.description }}</p>
+
+    <!-- Auction Info -->
+    <div class="auction-info">
+        <div><strong>Type:</strong> {{ auction.type }}</div>
+        <div *ngIf="(auctionService.timeLeft(auction.endDate) | async) as time">
+          <strong>Time left:</strong> {{ time }}
+        </div>
+        <div><strong>Starting Price:</strong> $ {{ auction.startingPrice }}</div>
+        <div *ngIf="auction.currentPrice"><strong>Current Price:</strong> $ {{ auction.currentPrice }}</div>
+        <div *ngIf="auction.winningBidder"><strong>Winning Bidder:</strong> {{ auction.winningBidder }}</div>
+    </div>
+
+    <!-- Bid Input -->
+    <div class="place-bid">
+        <h2>Place Your Bid:</h2>
+        <div *ngIf="errorMessage" class="error-card">{{ errorMessage }}</div>
+        <div class="input-group">
+            <div class="price-wrapper">
+                <span class="dollar-sign">$</span>
+                <input type="number" class="price-input" [(ngModel)]="userBidAmount" placeholder="Enter bid amount" step="1" required>
+            </div>
+            <button (click)="placeBid()">Bid</button>
+        </div>
+    </div>
+
+    <!-- Auction Bids -->
+    <div class="auction-bids" *ngIf="auction?.bids">
+        <h2>Bids:</h2>
+        <ul class="bids-list">
+            <li *ngFor="let bid of auction.bids">
+                <div class="bid-profile-pic-wrapper">
+                    <img [src]="bid.profilePicUrl" alt="{{ bid.displayName }}" class="bid-profile-pic">
+                </div>
+                <div><strong>User:</strong> {{ bid.displayName }}</div>
+                <div><strong>Bid Amount:</strong> $ {{ bid.amount }}</div>
+                <div><strong>Bid Time:</strong> {{ bid.timestamp.toDate() | date:'short' }}</div>
+            </li>
+        </ul>
+    </div>
+
+</div>
