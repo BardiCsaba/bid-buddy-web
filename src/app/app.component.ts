@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth'; 
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Subscription } from 'rxjs';
+import { AuctionService } from './shared/auction.service';
 
 @Component({
     selector: 'app-root',
@@ -21,7 +22,8 @@ export class AppComponent implements OnDestroy {
         private router: Router,
         private afAuth: AngularFireAuth,
         private firestore: AngularFirestore,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private auctionService: AuctionService,
     ) {
         this.afAuth.authState.subscribe(user => {
             if (this.userSubscription) {
@@ -46,11 +48,7 @@ export class AppComponent implements OnDestroy {
     }
 
     navigateTo(route: string): void {
-        if (this.username) {
-            this.router.navigate([`/${route}`]);
-        } else {
-            this.router.navigate(['/login']);
-        }
+        this.auctionService.navigateTo(route);
         this.menuOpen = false;
     }
 

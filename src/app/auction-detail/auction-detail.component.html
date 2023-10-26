@@ -11,6 +11,14 @@
     <!-- Auction Description -->
     <p class="auction-description">{{ auction.description }}</p>
 
+    <!-- Creator Info -->
+    <div class="creator-info" *ngIf="createdByUser">
+        <div class="creator-profile-pic-wrapper">
+            <img [src]="createdByUser.profilePicUrl ? createdByUser.profilePicUrl : defaultProfilePicUrl" class="creator-profile-pic">
+        </div>
+        <div><strong>Created By:</strong> {{ createdByUser.firstName + ' ' + createdByUser.lastName }}</div>
+    </div>
+
     <!-- Auction Info -->
     <div class="auction-info">
         <div><strong>Type:</strong> {{ auction.type }}</div>
@@ -23,7 +31,7 @@
     </div>
 
     <!-- Bid Input -->
-    <div class="place-bid">
+    <div class="place-bid" *ngIf="auction?.createdBy !== currentUserId">
         <h2>Place Your Bid:</h2>
         <div *ngIf="errorMessage" class="error-card">{{ errorMessage }}</div>
         <div class="input-group">
@@ -36,12 +44,12 @@
     </div>
 
     <!-- Auction Bids -->
-    <div class="auction-bids" *ngIf="auction?.bids">
+    <div class="auction-bids" *ngIf="auction.bids!.length; else noBids">
         <h2>Bids:</h2>
         <ul class="bids-list">
             <li *ngFor="let bid of auction.bids">
                 <div class="bid-profile-pic-wrapper">
-                    <img [src]="bid.profilePicUrl" alt="{{ bid.displayName }}" class="bid-profile-pic">
+                    <img [src]="bid.profilePicUrl ? bid.profilePicUrl : defaultProfilePicUrl" class="bid-profile-pic">
                 </div>
                 <div><strong>User:</strong> {{ bid.displayName }}</div>
                 <div><strong>Bid Amount:</strong> $ {{ bid.amount }}</div>
@@ -49,5 +57,9 @@
             </li>
         </ul>
     </div>
+
+    <ng-template #noBids>
+        <div>No bids for this auction yet.</div>
+    </ng-template>    
 
 </div>

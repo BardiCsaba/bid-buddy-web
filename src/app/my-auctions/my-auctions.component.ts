@@ -142,4 +142,8 @@ export class MyAuctionsComponent {
             this.isFormVisible = true;
         }
     }
+
+    onAuctionItemClick(auctionId: string): void {
+        this.auctionService.navigateTo(`/auction/${auctionId}`);
+    }
 }

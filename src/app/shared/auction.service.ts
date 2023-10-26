@@ -1,11 +1,12 @@
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Injectable, } from '@angular/core';
-import { Observable, BehaviorSubject, map, combineLatest } from 'rxjs';
+import { Observable, BehaviorSubject, map, combineLatest, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Auction } from '../models/auction.model';
 import { Bid } from '../models/bid.model';
 import { User } from '../models/user.model';
+import { Router } from '@angular/router';
 
 export enum ViewContext {
     AllAuctions,
@@ -25,7 +26,10 @@ export class AuctionService {
 
     private _auctions: Auction[] = [];
 
-    constructor(private firestore: AngularFirestore, private afAuth: AngularFireAuth) {
+    constructor(
+            private firestore: AngularFirestore, 
+            private afAuth: AngularFireAuth,
+            private router: Router) {
         this.loadAllAuctions();
         this.loadAuctionTypes();
     }
@@ -58,6 +62,15 @@ export class AuctionService {
 
     getAllAuctions(): Auction[] {
         return this._auctions;
+    }
+
+    getUserData(userId: string): Observable<User> {
+        return this.firestore.collection('users').doc(userId).snapshotChanges().pipe(
+            map(userSnapshot => {
+                const userData = userSnapshot.payload.data() as User;
+                return userData;
+            })
+        );
     }    
 
     async getMyAuctions(): Promise<Auction[]> {
@@ -115,53 +128,59 @@ export class AuctionService {
     }
 
     getAuctionWithBids(auctionId: string): Observable<Auction> {
-        const auction$ = this.firestore.collection('auctions').doc(auctionId).snapshotChanges().pipe(
-            map(auctionSnapshot => {
-                const auctionData = auctionSnapshot.payload.data() as any;
-                auctionData.endDate = auctionData.endDate.toDate();
-                return {
-                    id: auctionSnapshot.payload.id,
-                    ...auctionData
-                } as Auction;
-            })
-        );
+        try {
+            const auction$ = this.firestore.collection('auctions').doc(auctionId).snapshotChanges().pipe(
+                map(auctionSnapshot => {
+                    const auctionData = auctionSnapshot.payload.data() as any;
+                    auctionData.endDate = auctionData.endDate.toDate();
+                    return {
+                        id: auctionSnapshot.payload.id,
+                        ...auctionData
+                    } as Auction;
+                })
+            );
     
-        const bids$ = this.firestore.collection('auctions').doc(auctionId).collection<Bid>('bids').snapshotChanges().pipe(
-            switchMap(bidSnapshots => {
-                const bids = bidSnapshots.map(bidSnapshot => bidSnapshot.payload.doc.data() as Bid);
-                return combineLatest(
-                    bids.map(bid => 
-                        this.firestore.collection('users').doc(bid.userId).get().pipe(
-                            map(userDoc => {
-                                const userData = userDoc.data() as User;
-                                if (userData.profilePicUrl === undefined) {
-                                    bid.profilePicUrl = this.defaultProfilePicUrl;
-                                } else {
-                                    bid.profilePicUrl = userData.profilePicUrl;
-                                }
-                                if (userData.firstName) {
-                                    bid.displayName = userData.firstName + ' ' + userData.lastName;
-                                } else {
-                                    bid.displayName = 'Anonymous';
-                                }
-
-                                console.log(bid);
-                                return bid;
-                            })                            
+            const bids$ = this.firestore.collection('auctions').doc(auctionId).collection<Bid>('bids').snapshotChanges().pipe(
+                switchMap(bidSnapshots => {
+                    if (bidSnapshots.length === 0) {
+                        return of([]);
+                    }
+                    const bids = bidSnapshots.map(bidSnapshot => bidSnapshot.payload.doc.data() as Bid);
+                    return combineLatest(
+                        bids.map(bid => 
+                            this.firestore.collection('users').doc(bid.userId).get().pipe(
+                                map(userDoc => {
+                                    const userData = userDoc.data() as User;
+                                    if (userData.profilePicUrl === undefined) {
+                                        bid.profilePicUrl = this.defaultProfilePicUrl;
+                                    } else {
+                                        bid.profilePicUrl = userData.profilePicUrl;
+                                    }
+                                    if (userData.firstName) {
+                                        bid.displayName = userData.firstName + ' ' + userData.lastName;
+                                    } else {
+                                        bid.displayName = 'Anonymous';
+                                    }
+                                    return bid;
+                                })                            
+                            )
                         )
-                    )
-                );
-            }),
-            map(bids => bids.sort((a, b) => b.amount - a.amount))
-        );
+                    );
+                }),
+                map(bids => bids.sort((a, b) => b.amount - a.amount))
+            );
     
-        return combineLatest([auction$, bids$]).pipe(
-            map(([auction, bids]) => {
-                auction.bids = bids;
-                return auction;
-            })
-        );
-    }
+            return combineLatest([auction$, bids$]).pipe(
+                map(([auction, bids]) => {
+                    auction.bids = bids;
+                    return auction;
+                })
+            ); 
+        } catch (error) {
+            console.log("Error getting auction with bids:", error);
+            throw error;
+        }
+    }    
     
     async placeBidForAuction(auctionId: string, userBidAmount: number): Promise<boolean> {
         const auctionRef = this.firestore.collection('auctions').doc(auctionId);
@@ -229,7 +248,17 @@ export class AuctionService {
     
             return () => clearInterval(intervalId);
         });
-    }    
+    }
+    
+    async navigateTo(route: string): Promise<void> {
+        const user = await this.afAuth.currentUser;
+        const authenticated = user !== null;
+        if (authenticated) {
+            this.router.navigate([`/${route}`]);
+        } else {
+            this.router.navigate(['/login']);
+        }
+    }
 
     /*
     populateAuctionTypes(): Promise<void[]> {

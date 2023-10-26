@@ -51,7 +51,7 @@
 </div>
 
 <div class="auctions-list">
-    <div *ngFor="let auction of myAuctions" class="auction-item" [routerLink]="['/auction', auction.id]">
+    <div *ngFor="let auction of myAuctions" class="auction-item" (click)="onAuctionItemClick(auction.id!)">
         <img [src]="auction.imageSrc" alt="{{ auction.title }}">
         <div class="auction-info">
             <div class="info-text">

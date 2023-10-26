@@ -19,4 +19,8 @@ export class MainPageComponent {
             this.auctions = auctions;
         });
     }
+
+    onAuctionItemClick(auctionId: string): void {
+        this.auctionService.navigateTo(`/auction/${auctionId}`);
+    }
 }
