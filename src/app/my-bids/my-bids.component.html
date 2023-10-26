@@ -1,1 +1,23 @@
-<p>My Bids</p>
+<div class="filters-row">
+    <img src="assets/images/logo-text.png" alt="Logo" class="logo-text">
+    <input class="search-input" [(ngModel)]="auctionService.searchText" placeholder="Search" (keyup)="auctionService.searchAuctions()">
+</div>
+
+<div class="auctions-list">
+    <div *ngFor="let item of auctionsWithMyBid" class="auction-item" (click)="onAuctionItemClick(item.auction.id!)">
+        <img [src]="item.auction.imageSrc" alt="{{ item.auction.title }}">
+        <div class="auction-info">
+            <div class="info-text">
+                <h3>{{ item.auction.title }}</h3>
+            </div>
+            <div class="info-price-bid">
+                <span>Price: </span>
+                <strong>$ {{ item.auction.currentPrice }}</strong>
+            </div>
+            <div class="info-price-bid">
+                <span>Your bid: </span>
+                <strong>$ {{ item.highestBid!.amount }}</strong>
+            </div>
+        </div>            
+    </div>
+</div>

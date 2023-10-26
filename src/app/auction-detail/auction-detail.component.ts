@@ -43,8 +43,6 @@ export class AuctionDetailComponent implements OnInit {
                             });
                         }
 
-                        console.log("this.auction", this.auction);
-
                         this.afAuth.currentUser.then(user => {
                             if (user) {
                                 this.currentUserId = user.uid;

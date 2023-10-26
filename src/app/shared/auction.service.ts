@@ -25,6 +25,7 @@ export class AuctionService {
     filteredAuctions: BehaviorSubject<Auction[]> = new BehaviorSubject<Auction[]>([]);
 
     private _auctions: Auction[] = [];
+    db: any;
 
     constructor(
             private firestore: AngularFirestore, 
@@ -151,7 +152,7 @@ export class AuctionService {
                             this.firestore.collection('users').doc(bid.userId).get().pipe(
                                 map(userDoc => {
                                     const userData = userDoc.data() as User;
-                                    if (userData.profilePicUrl === undefined) {
+                                    if (userData.profilePicUrl === "") {
                                         bid.profilePicUrl = this.defaultProfilePicUrl;
                                     } else {
                                         bid.profilePicUrl = userData.profilePicUrl;
@@ -197,7 +198,6 @@ export class AuctionService {
             userId: (await this.afAuth.currentUser)?.uid,
             amount: userBidAmount,
             timestamp: new Date(),
-            
         });
     
         try {
@@ -207,7 +207,37 @@ export class AuctionService {
             console.error('Error placing bid:', error);
             return false;
         }
-    }
+    } 
+
+    async getAuctionsWithMyBids(): Promise<{ auction: Auction, highestBid?: Bid }[]> {
+        const user = await this.afAuth.currentUser;
+        if (!user) return [];
+        
+        const auctionsWithBids: { auction: Auction, highestBid?: Bid }[] = [];
+        
+        // Get a snapshot of all the auctions
+        const auctionsSnapshot = await this.firestore.collection('auctions').get().toPromise();
+        
+        for (const auctionDoc of auctionsSnapshot!.docs) {
+            const auctionData = auctionDoc.data() as Auction;
+            
+            // Fetch the bids for this auction
+            const bidsSnapshot = await auctionDoc.ref.collection('bids').orderBy('amount', 'desc').get();
+            if (!bidsSnapshot.empty) {
+                const highestBidData = bidsSnapshot.docs[0].data() as Bid;
+                
+                // Check if the highest bid belongs to the current user
+                if (highestBidData.userId === user.uid) {
+                    auctionsWithBids.push({
+                        auction: auctionData,
+                        highestBid: highestBidData
+                    });
+                }
+            }
+        }
+        
+        return auctionsWithBids;
+    }         
 
     timeLeft(auctionEndDate: Date): Observable<string> {
         return new Observable<string>(observer => {
@@ -248,6 +278,10 @@ export class AuctionService {
     
             return () => clearInterval(intervalId);
         });
+    }
+    
+    onAuctionItemClick(auctionId: string): void {
+        this.navigateTo(`/auction/${auctionId}`);
     }
     
     async navigateTo(route: string): Promise<void> {

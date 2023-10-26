@@ -37,7 +37,6 @@ export class MyAuctionsComponent {
         this.auctionService.filteredAuctions.subscribe((auctions) => {
             this.myAuctions = auctions;
         });
-        console.log(this.myAuctions);
     }
 
     startingPriceValidator(): ValidatorFn {

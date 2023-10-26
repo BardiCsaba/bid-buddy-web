@@ -5,6 +5,7 @@
     padding: 20px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
     max-width: 600px;
+    min-width: 250px;
     margin: 0 auto;
 
     .creator-info {
@@ -161,19 +162,36 @@
             }            
 
             li {
+                display: flex;
+                justify-content: space-between;
                 padding: 10px;
                 border-bottom: 1px solid #eee;
-
+        
                 &:last-child {
                     border-bottom: none;
                 }
 
-                div {
+                .bid-details {
+                    flex: 1;
                     font-size: 0.9em;
-                    margin-bottom: 8px;
+                    margin-right: 20px;
+                    
+                    div {
+                        margin-bottom: 8px;
+        
+                        strong {
+                            color: #333;
+                        }
+                    }
+                }
 
-                    strong {
-                        color: #333;
+                .bid-user-info {
+                    display: flex;
+                    align-items: center;
+                    font-size: 0.9em;
+                    
+                    .bid-profile-pic-wrapper {
+                        margin-right: 10px;
                     }
                 }
             }
