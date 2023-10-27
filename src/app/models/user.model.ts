@@ -6,5 +6,8 @@ export class User {
         public lastName: string,
         public profilePicUrl: string,
         public balance: number,
-    ) { }
+    ) { 
+        displayName = firstName + " " + lastName;
+    }
+
 }

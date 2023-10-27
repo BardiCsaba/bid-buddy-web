@@ -64,6 +64,7 @@ export class AppComponent implements OnDestroy {
             this.userSubscription = null;
         }
         this.cdr.detectChanges();
+        this.auctionService.navigateTo('/login');
     }
 
     ngOnDestroy() {

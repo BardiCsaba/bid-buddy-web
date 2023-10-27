@@ -15,7 +15,6 @@ export class MyBidsComponent implements OnInit {
 
     async ngOnInit() {
         this.auctionsWithMyBid = await this.auctionService.getAuctionsWithMyBids();
-        console.log(this.auctionsWithMyBid);
     }
 
     onAuctionItemClick(auctionId: string): void {

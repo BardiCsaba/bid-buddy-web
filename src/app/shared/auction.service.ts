@@ -1,7 +1,7 @@
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Injectable, } from '@angular/core';
-import { Observable, BehaviorSubject, map, combineLatest, of } from 'rxjs';
+import { Observable, BehaviorSubject, map, combineLatest, of, throwError } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Auction } from '../models/auction.model';
 import { Bid } from '../models/bid.model';
@@ -23,10 +23,11 @@ export class AuctionService {
     searchText: string = '';
     filters: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['All']);
     filteredAuctions: BehaviorSubject<Auction[]> = new BehaviorSubject<Auction[]>([]);
-
-    private _auctions: Auction[] = [];
-    db: any;
-
+    
+    private _currentUserId?: string;
+    private _auctionsCache: Map<string, Auction> = new Map();
+    private _bidsCache: Map<string, Bid[]> = new Map();
+    
     constructor(
             private firestore: AngularFirestore, 
             private afAuth: AngularFireAuth,
@@ -35,18 +36,30 @@ export class AuctionService {
         this.loadAuctionTypes();
     }
 
+    // Load collections from Firestore.
     private loadAllAuctions() {
         this.firestore.collection('auctions').snapshotChanges().subscribe(data => {
-            this._auctions = data.map(e => {
+            data.forEach(e => {
                 const data = e.payload.doc.data() as any;
                 data.endDate = data.endDate.toDate();
-
-                return {
+                const auction: Auction = {
                     id: e.payload.doc.id,
                     ...data
-                } as Auction;
+                };
+                this._auctionsCache.set(e.payload.doc.id, auction);
             });
             this.updateFilteredAuctions();
+        });
+    }
+
+    private loadAuctionBids(auctionId: string) {
+        if(!this._bidsCache.has(auctionId)){
+            this._bidsCache.set(auctionId, []);
+        }
+
+        this.firestore.collection('auctions').doc(auctionId).collection<Bid>('bids').snapshotChanges().subscribe(data => {
+            const bids: Bid[] = data.map(e => e.payload.doc.data() as Bid);
+            this._bidsCache.set(auctionId, bids);
         });
     }
 
@@ -62,8 +75,8 @@ export class AuctionService {
     }
 
     getAllAuctions(): Auction[] {
-        return this._auctions;
-    }
+        return Array.from(this._auctionsCache.values());
+    }    
 
     getUserData(userId: string): Observable<User> {
         return this.firestore.collection('users').doc(userId).snapshotChanges().pipe(
@@ -72,62 +85,42 @@ export class AuctionService {
                 return userData;
             })
         );
-    }    
+    }
+
+    async getCurrentUser(): Promise<User | undefined> {
+        const userId = await this.getCurrentUserId();
+        if (!userId) return undefined;
+        return this.getUserData(userId).toPromise();
+    }
+
+    async getCurrentUserId(): Promise<string | undefined> {
+        if (!this._currentUserId) {
+            const user = await this.afAuth.currentUser;
+            this._currentUserId = user?.uid;
+        }
+        return this._currentUserId;
+    }
 
     async getMyAuctions(): Promise<Auction[]> {
-        const user = await this.afAuth.currentUser;
-        if (!user) return [];
-        return this._auctions.filter(auction => auction.createdBy === user.uid);
+        const userId = await this.getCurrentUserId();
+        if (!userId) return [];
+        return Array.from(this._auctionsCache.values()).filter(auction => auction.createdBy === userId);
     }
 
     async addNewAuction(auction: Auction): Promise<void> {
-        const user = await this.afAuth.currentUser;
-        if (!user) {
+        const userId = await this.getCurrentUserId();
+        if (!userId) {
             throw new Error('No user is currently authenticated.');
         }
-        const auctionId = this.firestore.createId();
-        auction.createdBy = user.uid;
-        auction.id = auctionId;
+        auction.createdBy = userId;
+        auction.id = this.firestore.createId();
         auction.isActive = true;
 
-        return this.firestore.collection('auctions').doc(auctionId).set(auction).then(() => {
+        return this.firestore.collection('auctions').doc(auction.id).set(auction).then(() => {
             this.loadAllAuctions();
         });
     }
-
-    selectFilter(filter: string): void {
-        this.selectedFilter = filter;
-        this.updateFilteredAuctions();
-    }
-
-    searchAuctions(): void {
-        this.updateFilteredAuctions();
-    }
-
-    updateFilteredAuctions(): void {
-        let currentFiltered = [...this._auctions];
     
-        // Filter by selected type.
-        if (this.selectedFilter && this.selectedFilter !== 'All') {
-            currentFiltered = currentFiltered.filter(auction => auction.type === this.selectedFilter);
-        }
-    
-        // Search by title.
-        if (this.searchText) {
-            const searchLower = this.searchText.toLowerCase();
-            currentFiltered = currentFiltered.filter(auction => auction.title.toLowerCase().includes(searchLower));
-        }
-    
-        // Filter by view context.
-        if (this.viewContext === ViewContext.MyAuctions) {
-            this.getMyAuctions().then(myAuctions => {
-                this.filteredAuctions.next(currentFiltered.filter(auction => myAuctions.includes(auction)));
-            });
-        } else {
-            this.filteredAuctions.next(currentFiltered);
-        }
-    }
-
     getAuctionWithBids(auctionId: string): Observable<Auction> {
         try {
             const auction$ = this.firestore.collection('auctions').doc(auctionId).snapshotChanges().pipe(
@@ -140,7 +133,6 @@ export class AuctionService {
                     } as Auction;
                 })
             );
-    
             const bids$ = this.firestore.collection('auctions').doc(auctionId).collection<Bid>('bids').snapshotChanges().pipe(
                 switchMap(bidSnapshots => {
                     if (bidSnapshots.length === 0) {
@@ -170,7 +162,6 @@ export class AuctionService {
                 }),
                 map(bids => bids.sort((a, b) => b.amount - a.amount))
             );
-    
             return combineLatest([auction$, bids$]).pipe(
                 map(([auction, bids]) => {
                     auction.bids = bids;
@@ -181,7 +172,7 @@ export class AuctionService {
             console.log("Error getting auction with bids:", error);
             throw error;
         }
-    }    
+    }  
     
     async placeBidForAuction(auctionId: string, userBidAmount: number): Promise<boolean> {
         const auctionRef = this.firestore.collection('auctions').doc(auctionId);
@@ -195,7 +186,7 @@ export class AuctionService {
         const user = await this.afAuth.currentUser;
         batch.set(bidsCollectionRef.doc(bidId).ref, {
             id: bidId,
-            userId: (await this.afAuth.currentUser)?.uid,
+            userId: user?.uid,
             amount: userBidAmount,
             timestamp: new Date(),
         });
@@ -210,34 +201,66 @@ export class AuctionService {
     } 
 
     async getAuctionsWithMyBids(): Promise<{ auction: Auction, highestBid?: Bid }[]> {
-        const user = await this.afAuth.currentUser;
-        if (!user) return [];
+        const userId = await this.getCurrentUserId();
+        if (!userId) return [];
         
         const auctionsWithBids: { auction: Auction, highestBid?: Bid }[] = [];
         
-        // Get a snapshot of all the auctions
         const auctionsSnapshot = await this.firestore.collection('auctions').get().toPromise();
         
-        for (const auctionDoc of auctionsSnapshot!.docs) {
+        // Fetch highest bids for all auctions in parallel
+        const bidsPromises = auctionsSnapshot!.docs.map(async auctionDoc => {
             const auctionData = auctionDoc.data() as Auction;
-            
-            // Fetch the bids for this auction
-            const bidsSnapshot = await auctionDoc.ref.collection('bids').orderBy('amount', 'desc').get();
+            const bidsSnapshot = await auctionDoc.ref.collection('bids').orderBy('amount', 'desc').limit(1).get();
             if (!bidsSnapshot.empty) {
                 const highestBidData = bidsSnapshot.docs[0].data() as Bid;
-                
-                // Check if the highest bid belongs to the current user
-                if (highestBidData.userId === user.uid) {
+                if (highestBidData.userId === userId) {
                     auctionsWithBids.push({
                         auction: auctionData,
                         highestBid: highestBidData
                     });
                 }
             }
-        }
+        });
+    
+        await Promise.all(bidsPromises);
         
         return auctionsWithBids;
-    }         
+    }       
+
+    selectFilter(filter: string): void {
+        this.selectedFilter = filter;
+        this.updateFilteredAuctions();
+    }
+
+    searchAuctions(): void {
+        this.updateFilteredAuctions();
+    }
+
+    updateFilteredAuctions(): void {
+        let currentFiltered = Array.from(this._auctionsCache.values());
+        
+        // Filter by selected type.
+        if (this.selectedFilter && this.selectedFilter !== 'All') {
+            currentFiltered = currentFiltered.filter(auction => auction.type === this.selectedFilter);
+        }
+        
+        // Search by title.
+        if (this.searchText) {
+            const searchLower = this.searchText.toLowerCase();
+            currentFiltered = currentFiltered.filter(auction => auction.title.toLowerCase().includes(searchLower));
+        }
+
+        
+        // Filter by view context.
+        if (this.viewContext === ViewContext.MyAuctions) {
+            this.getMyAuctions().then(myAuctions => {
+                this.filteredAuctions.next(currentFiltered.filter(auction => myAuctions.includes(auction)));
+            });
+        } else {
+            this.filteredAuctions.next(currentFiltered);
+        }
+    }    
 
     timeLeft(auctionEndDate: Date): Observable<string> {
         return new Observable<string>(observer => {
