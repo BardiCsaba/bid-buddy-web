@@ -1,7 +1,7 @@
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Injectable, } from '@angular/core';
-import { Observable, BehaviorSubject, map, combineLatest, of, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, map, combineLatest, of} from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Auction } from '../models/auction.model';
 import { Bid } from '../models/bid.model';
@@ -211,6 +211,7 @@ export class AuctionService {
         // Fetch highest bids for all auctions in parallel
         const bidsPromises = auctionsSnapshot!.docs.map(async auctionDoc => {
             const auctionData = auctionDoc.data() as Auction;
+            auctionData.endDate = (auctionData.endDate as any).toDate();
             const bidsSnapshot = await auctionDoc.ref.collection('bids').orderBy('amount', 'desc').limit(1).get();
             if (!bidsSnapshot.empty) {
                 const highestBidData = bidsSnapshot.docs[0].data() as Bid;

@@ -9,6 +9,7 @@
         <div class="auction-info">
             <div class="info-text">
                 <h3>{{ item.auction.title }}</h3>
+                <span *ngIf="(auctionService.timeLeft(item.auction.endDate) | async) as time">{{ time }}</span>
             </div>
             <div class="info-price-bid">
                 <span>Price: </span>

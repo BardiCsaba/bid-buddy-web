@@ -17,6 +17,7 @@ export class AuctionDetailComponent implements OnInit {
     errorMessage: string | null = null;
     createdByUser?: User;
     currentUserId?: string;
+    currentUser?: User;
 
     constructor(
         private route: ActivatedRoute,
@@ -29,7 +30,7 @@ export class AuctionDetailComponent implements OnInit {
         if (id) {
             this.auctionService.getAuctionWithBids(id)
                 .subscribe(
-                    (auctionWithBids) => {
+                    async (auctionWithBids) => {
                         this.auction = auctionWithBids;
                         this.userBidAmount = this.auction.currentPrice + 1;
 
@@ -46,6 +47,9 @@ export class AuctionDetailComponent implements OnInit {
                         this.afAuth.currentUser.then(user => {
                             if (user) {
                                 this.currentUserId = user.uid;
+                                this.auctionService.getUserData(this.currentUserId!).subscribe(userData => {
+                                    this.currentUser = userData;
+                                });
                             }
                         });
                     },
@@ -66,6 +70,11 @@ export class AuctionDetailComponent implements OnInit {
     
         if (this.userBidAmount <= this.auction.currentPrice) {
             this.errorMessage = 'Your bid must be higher than the current price.';
+            return;
+        }
+
+        if (this.currentUser && this.currentUser.balance < this.userBidAmount) {
+            this.errorMessage = 'You do not have enough balance to place this bid.';
             return;
         }
     

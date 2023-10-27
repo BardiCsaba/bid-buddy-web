@@ -63,7 +63,7 @@
     }
 
     button[type="submit"] {
-        background-color: #4CAF50;
+        background-color: #FF4747;
         color: #fff;
         border: none;
         border-radius: 8px;
@@ -72,7 +72,7 @@
         transition: background-color 0.3s;
 
         &:hover {
-            background-color: darken(#4CAF50, 10%);
+            background-color: darken(#FF4747, 10%);
         }
     }
 }

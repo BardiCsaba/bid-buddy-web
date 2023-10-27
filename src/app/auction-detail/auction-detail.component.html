@@ -31,7 +31,7 @@
     </div>
 
     <!-- Bid Input -->
-    <div class="place-bid" *ngIf="auction?.createdBy !== currentUserId">
+    <div class="place-bid" *ngIf="auction?.createdBy !== currentUser?.userId">
         <h2>Place Your Bid:</h2>
         <div *ngIf="errorMessage" class="error-card">{{ errorMessage }}</div>
         <div class="input-group">
