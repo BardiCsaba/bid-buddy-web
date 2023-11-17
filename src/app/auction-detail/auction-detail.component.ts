@@ -18,6 +18,8 @@ export class AuctionDetailComponent implements OnInit {
     createdByUser?: User;
     currentUserId?: string;
     currentUser?: User;
+    showChat = false;
+    userChatMessage: string = '';
 
     constructor(
         private route: ActivatedRoute,
@@ -28,14 +30,18 @@ export class AuctionDetailComponent implements OnInit {
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
-            this.auctionService.getAuctionWithBids(id)
+            this.auctionService.getAuctionWithBidsAndChats(id)
                 .subscribe(
-                    async (auctionWithBids) => {
-                        this.auction = auctionWithBids;
+                    async (auctionWithBidsAndChats) => {
+                        this.auction = auctionWithBidsAndChats;
                         this.userBidAmount = this.auction.currentPrice + 1;
 
                         if (!this.auction.bids) {
                             this.auction.bids = [];
+                        }
+
+                        if (!this.auction.chats) {
+                            this.auction.chats = [];
                         }
 
                         if (this.auction.createdBy) {
@@ -60,6 +66,15 @@ export class AuctionDetailComponent implements OnInit {
         }
     }
 
+    sendChatMessage() {
+        if (this.userChatMessage.trim()) {
+            console.log('Sending message:', this.userChatMessage);
+            this.auctionService.sendChatMessage(this.auction!.id!, this.userChatMessage, this.currentUserId!);
+            this.userChatMessage = '';
+            this.auction = this.auctionService.getAllAuctions().find((auction) => auction.id === this.auction!.id);
+        }
+    }
+
     async placeBid() {
         if (!this.auction || !this.auction.id) return;
     
@@ -79,7 +94,7 @@ export class AuctionDetailComponent implements OnInit {
         }
     
         try {
-            const success = await this.auctionService.placeBidForAuction(this.auction.id, this.userBidAmount); 
+            const success = await this.auctionService.placeBidForAuction(this.auction.id, this.userBidAmount, this.currentUserId!); 
             if (success) {
                 if (this.auction && this.auction.id) {
                     this.auction = this.auctionService.getAllAuctions().find((auction) => auction.id === this.auction!.id);
@@ -90,6 +105,14 @@ export class AuctionDetailComponent implements OnInit {
         } catch (error) {
             console.error(error);
             this.errorMessage = 'Error placing your bid. Please try again.';
+        }
+    }
+
+    toggleChat() {
+        if (this.showChat) {
+            this.showChat = false;
+        } else {
+            this.showChat = true;
         }
     }
 }

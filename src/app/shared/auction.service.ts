@@ -1,5 +1,6 @@
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import firebase from 'firebase/compat/app';
 import { Injectable, } from '@angular/core';
 import { Observable, BehaviorSubject, map, combineLatest, of} from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -7,6 +8,7 @@ import { Auction } from '../models/auction.model';
 import { Bid } from '../models/bid.model';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
+import { ChatMessage } from '../models/chat.model';
 
 export enum ViewContext {
     AllAuctions,
@@ -62,6 +64,39 @@ export class AuctionService {
             this._bidsCache.set(auctionId, bids);
         });
     }
+
+    private loadAuctionChats(auctionId: string): Observable<ChatMessage[]> {
+        return this.firestore.collection('auctions').doc(auctionId).collection<ChatMessage>('chat', ref => 
+        ref.orderBy('timestamp', 'desc')
+        ).snapshotChanges().pipe(
+            switchMap(chatSnapshots => {
+                if (chatSnapshots.length === 0) {
+                    return of([]);
+                }
+                const chats = chatSnapshots.map(chatSnapshot => chatSnapshot.payload.doc.data() as ChatMessage);
+                return combineLatest(
+                    chats.map(chat => 
+                        this.firestore.collection('users').doc(chat.senderUserId).get().pipe(
+                            map(userDoc => {
+                                const userData = userDoc.data() as User;
+                                if (userData.profilePicUrl === "") {
+                                    chat.profilePicUrl = this.defaultProfilePicUrl;
+                                } else {
+                                    chat.profilePicUrl = userData.profilePicUrl;
+                                }
+                                if (userData.firstName) {
+                                    chat.displayName = userData.firstName + ' ' + userData.lastName;
+                                } else {
+                                    chat.displayName = 'Anonymous';
+                                }
+                                return chat;
+                            })                            
+                        )
+                    )
+                );
+            })
+        );
+    }      
 
     private loadAuctionTypes() {
         this.firestore.collection('auction-types', ref => ref.orderBy('order')).snapshotChanges().subscribe(data => {
@@ -121,7 +156,7 @@ export class AuctionService {
         });
     }
     
-    getAuctionWithBids(auctionId: string): Observable<Auction> {
+    getAuctionWithBidsAndChats(auctionId: string): Observable<Auction> {
         try {
             const auction$ = this.firestore.collection('auctions').doc(auctionId).snapshotChanges().pipe(
                 map(auctionSnapshot => {
@@ -162,9 +197,13 @@ export class AuctionService {
                 }),
                 map(bids => bids.sort((a, b) => b.amount - a.amount))
             );
-            return combineLatest([auction$, bids$]).pipe(
-                map(([auction, bids]) => {
+
+            const chats$ = this.loadAuctionChats(auctionId);
+
+            return combineLatest([auction$, bids$, chats$]).pipe(
+                map(([auction, bids, chats]) => {
                     auction.bids = bids;
+                    auction.chats = chats;
                     return auction;
                 })
             ); 
@@ -174,19 +213,44 @@ export class AuctionService {
         }
     }  
     
-    async placeBidForAuction(auctionId: string, userBidAmount: number): Promise<boolean> {
+    async sendChatMessage(auctionId: string, message: string, userId: string): Promise<void> {
+        if (!message.trim()) {
+            return;
+        }
+
+        const chatsRef = this.firestore.collection('auctions').doc(auctionId).collection('chat');
+        const batch = this.firestore.firestore.batch(); 
+        const messageId = this.firestore.createId();
+
+        batch.set(chatsRef.doc(messageId).ref, {
+            messageId: messageId,
+            senderUserId: userId,
+            message: message.trim(),
+            timestamp: new Date(),
+        });
+    
+        try {
+            await batch.commit();
+        } catch (error) {
+            console.error('Error sending chat message:', error);
+        }
+    }
+
+    async placeBidForAuction(auctionId: string, userBidAmount: number, userId: string): Promise<boolean> {
         const auctionRef = this.firestore.collection('auctions').doc(auctionId);
         const bidsCollectionRef = auctionRef.collection('bids');
     
         const batch = this.firestore.firestore.batch();
     
-        batch.update(auctionRef.ref, { currentPrice: userBidAmount });
+        batch.update(auctionRef.ref, { 
+            currentPrice: userBidAmount,
+            highestBidderId: userId
+        });
     
         const bidId = this.firestore.createId();
-        const user = await this.afAuth.currentUser;
         batch.set(bidsCollectionRef.doc(bidId).ref, {
             id: bidId,
-            userId: user?.uid,
+            userId: userId,
             amount: userBidAmount,
             timestamp: new Date(),
         });

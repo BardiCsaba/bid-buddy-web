@@ -1,4 +1,5 @@
 import { Bid } from './bid.model';
+import { ChatMessage } from './chat.model';
 
 export class Auction {
     constructor(
@@ -14,5 +15,7 @@ export class Auction {
         public id?: string,
         public bids?: Array<Bid>,
         public winningBidder?: string,
+        public highestBidderid?: string,
+        public chats?: Array<ChatMessage>,
     ) { }
 }

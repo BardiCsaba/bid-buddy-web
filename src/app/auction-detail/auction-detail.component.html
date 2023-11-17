@@ -31,7 +31,7 @@
     </div>
 
     <!-- Bid Input -->
-    <div class="place-bid" *ngIf="auction?.createdBy !== currentUser?.userId">
+    <div class="place-bid" *ngIf="auction?.createdBy !== currentUser?.userId && auction.isActive">
         <h2>Place Your Bid:</h2>
         <div *ngIf="errorMessage" class="error-card">{{ errorMessage }}</div>
         <div class="input-group">
@@ -43,26 +43,52 @@
         </div>
     </div>
 
+    <!-- Chat Toggle Button -->
+    <button class="place-bid" (click)="toggleChat()">Toggle Chat</button>
+
+    <!-- Chat Section -->
+    <div class="auction-bids" *ngIf="showChat">
+        <h2>Chat:</h2>
+        <!-- Chat Input -->
+        <div class="chat-input" *ngIf="auction.isActive">
+            <input type="text" class="chat-message-input" [(ngModel)]="userChatMessage" placeholder="Type your message here" />
+            <button (click)="sendChatMessage()">Send</button>
+        </div>
+        <ul class="bids-list">
+            <li *ngFor="let chat of auction.chats">
+                <!-- User Info -->
+                <div class="bid-user-info">
+                    <div class="bid-profile-pic-wrapper">
+                        <img [src]="chat.profilePicUrl ? chat.profilePicUrl : defaultProfilePicUrl" alt="{{ chat.displayName }}" class="bid-profile-pic">
+                    </div>
+                    <div><strong>{{ chat.displayName }}</strong></div>
+                </div>
+                <!-- Message Info -->
+                <div class="bid-details">
+                    <div>{{ chat.message }}</div>
+                    <div>{{ chat.timestamp.toDate() | date:'short' }}</div>
+                </div>
+            </li>    
+        </ul>
+    </div>
+
     <!-- Auction Bids -->
     <div class="auction-bids" *ngIf="auction && auction.bids && auction.bids.length; else noBids">
         <h2>Bids:</h2>
         <ul class="bids-list">
             <li *ngFor="let bid of auction.bids">
-                
-                <!-- Bid Details (Left) -->
-                <div class="bid-details">
-                    <div><strong>Amount:</strong> $ {{ bid.amount }}</div>
-                    <div><strong>Time:</strong> {{ bid.timestamp.toDate() | date:'short' }}</div>
-                </div>
-    
-                <!-- Bidder Info (Right) -->
+                <!-- Bidder Info (Left) -->
                 <div class="bid-user-info">
                     <div class="bid-profile-pic-wrapper">
                         <img [src]="bid.profilePicUrl ? bid.profilePicUrl : defaultProfilePicUrl" class="bid-profile-pic">
                     </div>
                     <div><strong>{{ bid.displayName }}</strong> </div>
                 </div>
-    
+                <!-- Bid Details (Right) -->
+                <div class="bid-details">
+                    <div><strong> $ {{ bid.amount }} </strong></div>
+                    <div><strong> {{ bid.timestamp.toDate() | date:'short' }}</strong></div>
+                </div>
             </li>
         </ul>
     </div>
