@@ -18,7 +18,7 @@
             </div>
             <div class="info-price-bid">
                 <strong>$ {{ auction.currentPrice }}</strong>
-                <button class="bid-button">Bid now</button>
+                <button *ngIf="auction.isActive" class="bid-button">Bid now</button>
             </div>
         </div>            
     </div>

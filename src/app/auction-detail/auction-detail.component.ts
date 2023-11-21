@@ -20,6 +20,8 @@ export class AuctionDetailComponent implements OnInit {
     currentUser?: User;
     showChat = false;
     userChatMessage: string = '';
+    winingBidder?: User;
+    auctionWon = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -47,6 +49,13 @@ export class AuctionDetailComponent implements OnInit {
                         if (this.auction.createdBy) {
                             this.auctionService.getUserData(this.auction.createdBy).subscribe(userData => {
                                 this.createdByUser = userData;
+                            });
+                        }
+
+                        if (!this.auction.isActive && this.auction.highestBidderId) {
+                            this.auctionService.getUserData(this.auction.highestBidderId).subscribe(userData => {
+                                this.winingBidder = userData;
+                                this.auctionWon = true;
                             });
                         }
 

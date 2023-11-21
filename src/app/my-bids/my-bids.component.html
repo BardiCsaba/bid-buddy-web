@@ -6,7 +6,7 @@
 <div class="auctions-list">
     <div *ngFor="let item of auctionsWithMyBid" class="auction-item" (click)="onAuctionItemClick(item.auction.id!)">
         <img [src]="item.auction.imageSrc" alt="{{ item.auction.title }}">
-        <div class="auction-info">
+        <div class="auction-info" [ngStyle]="{'background-color': !item.auction.isActive && item.auction.highestBidderId ? '#90ee90' : 'none'}">
             <div class="info-text">
                 <h3>{{ item.auction.title }}</h3>
                 <span *ngIf="(auctionService.timeLeft(item.auction.endDate) | async) as time">{{ time }}</span>

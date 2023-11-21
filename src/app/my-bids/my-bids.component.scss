@@ -1,21 +1,29 @@
 .bids-list {
     list-style: none;
     padding: 0;
-  
+
     li {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-  
-      &:last-child {
-        border-bottom: none;
-      }
-  
-      div {
-        margin-bottom: 8px;
-  
-        strong {
-          color: #333;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+
+        &:last-child {
+            border-bottom: none;
         }
-      }
+
+        div {
+            margin-bottom: 8px;
+
+            strong {
+                color: #333;
+            }
+        }
     }
-  }  
+}
+
+.auction-item {
+    .auction-info {
+        .info-text {
+            max-width: 150px;
+        }
+    }
+}

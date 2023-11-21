@@ -139,6 +139,7 @@ export class MyAuctionsComponent {
             this.auctionForm.patchValue({ endDate: defaultEndDate.toISOString().slice(0, 16)});
             this.auctionForm.patchValue({ startingPrice: 1 });
             this.isFormVisible = true;
+            //this.auctionService.populateAuctions();
         }
     }
 

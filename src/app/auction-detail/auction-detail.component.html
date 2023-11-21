@@ -27,7 +27,15 @@
         </div>
         <div><strong>Starting Price:</strong> $ {{ auction.startingPrice }}</div>
         <div *ngIf="auction.currentPrice"><strong>Current Price:</strong> $ {{ auction.currentPrice }}</div>
-        <div *ngIf="auction.winningBidder"><strong>Winning Bidder:</strong> {{ auction.winningBidder }}</div>
+        <div *ngIf="auctionWon"><strong>Won by:</strong></div>
+    </div>
+
+    <!-- Winner Info -->
+    <div class="creator-info" *ngIf="auctionWon">
+        <div class="creator-profile-pic-wrapper">
+            <img [src]="winingBidder?.profilePicUrl ? winingBidder?.profilePicUrl : defaultProfilePicUrl" class="creator-profile-pic">
+        </div>
+        <div><strong> {{ winingBidder?.firstName + ' ' + winingBidder?.lastName }}</strong></div>
     </div>
 
     <!-- Bid Input -->
@@ -93,7 +101,7 @@
         </ul>
     </div>
     <ng-template class="auction-bids" #noBids>
-        <div>No bids for this auction yet.</div>
+        <div><br>No bids for this auction yet.</div>
     </ng-template>   
  
 
